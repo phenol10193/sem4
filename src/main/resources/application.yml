@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sweet_peach?useSSL=false
+    username: root
+  mail:
+    host: info@trial-z3m5jgrq89mldpyo.mlsender.net
+    port: 587
+    username: hieu.nv.2033@aptechlearning.edu.vn
+    password: "@hieu2104"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
