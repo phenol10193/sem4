@@ -17,6 +17,7 @@ public class Comic {
     private int followCount;
     private double rating;
     private String status;
+
     private boolean isDeleted;
 
     public Long getId() {
@@ -81,5 +82,8 @@ public class Comic {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setDeleted(boolean b) {
     }
 }

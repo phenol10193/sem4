@@ -1,4 +1,4 @@
-package com.example.sweet_peach_be.reposittory;
+package com.example.sweet_peach_be.repositories;
 
 import com.example.sweet_peach_be.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;

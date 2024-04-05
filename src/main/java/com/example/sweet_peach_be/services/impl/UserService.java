@@ -2,7 +2,7 @@ package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.User;
-import com.example.sweet_peach_be.reposittory.UserRepository;
+import com.example.sweet_peach_be.repositories.UserRepository;
 import com.example.sweet_peach_be.services.EmailService;
 import com.example.sweet_peach_be.services.IUserService;
 import com.example.sweet_peach_be.services.TokenService;

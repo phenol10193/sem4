@@ -1,5 +1,8 @@
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
+
 @Entity
 @Table(name = "chapters")
 public class Chapter {
@@ -11,26 +14,47 @@ public class Chapter {
     @ManyToOne
     @JoinColumn(name = "comic_id")
     private Comic comic;
-
+    @Column(name = "comic_id", insertable = false, updatable = false)
+    private Long comicId;
     private String title;
     private int chapterNumber;
     private int viewCount;
     private boolean isDeleted;
-
+    private Timestamp updatedAt;
     public Long getId() {
         return id;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Comic getComic() {
-        return comic;
+    public String getComic() {
+        return comic.getTitle();
     }
 
     public void setComic(Comic comic) {
         this.comic = comic;
+    }
+
+    public Long getComicId() {
+        return comicId;
     }
 
     public String getTitle() {
@@ -56,5 +80,8 @@ public class Chapter {
     public void setViewCount(int viewCount) {
         this.viewCount = viewCount;
     }
+
+
+
 }
 
