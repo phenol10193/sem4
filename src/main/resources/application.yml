@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sweet_peach?useSSL=false
+    username: root
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+     ddl-auto: update # Cấu hình cách Hibernate tạo bảng trong cơ sở dữ liệu
+    show-sql: true # Hiển thị các lệnh SQL được tạo bởi Hibernate trong console
