@@ -41,6 +41,12 @@ public class UserFollowedComics {
     public void setComic(Comic comic) {
         this.comic = comic;
     }
+    public boolean isDeleted() {
+        return isDeleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
     // Getters and setters
 }

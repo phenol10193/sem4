@@ -74,6 +74,12 @@ public class Comment {
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
+    public boolean isDeleted() {
+        return isDeleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
     // Getters and setters
 }

@@ -53,6 +53,12 @@ public class UserReadingHistory {
     public void setChapter(Chapter chapter) {
         this.chapter = chapter;
     }
+    public boolean isDeleted() {
+        return isDeleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
     // Getters and setters
 }

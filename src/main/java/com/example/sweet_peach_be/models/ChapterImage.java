@@ -38,6 +38,12 @@ public class ChapterImage {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+    public boolean isDeleted() {
+        return isDeleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
     // Getters and setters
 }
