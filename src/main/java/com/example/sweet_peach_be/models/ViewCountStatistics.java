@@ -51,12 +51,6 @@ public class ViewCountStatistics {
     public void setViewDate(LocalDate viewDate) {
         this.viewDate = viewDate;
     }
-    public boolean isDeleted() {
-        return isDeleted;
-    }
 
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
-    }
     // Constructors, getters, and setters
 }

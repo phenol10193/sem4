@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface IChapterImageService {
     List<ChapterImage> getChapterImagesByChapterId(Long chapterId);
+   ChapterImage getChapterImageById( Long chapterImageId);
+    ChapterImage createChapterImage(ChapterImage chapterImage);
 
-    ChapterImage saveChapterImage(Long chapterId, ChapterImage chapterImage);
-
-    ChapterImage updateChapterImage(Long chapterId, Long imageId, ChapterImage chapterImage);
+    ChapterImage updateChapterImage(Long imageId, ChapterImage chapterImage);
 
     void deleteChapterImage(Long chapterId, Long imageId);
 }

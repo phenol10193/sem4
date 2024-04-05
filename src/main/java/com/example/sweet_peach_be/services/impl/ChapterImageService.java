@@ -20,6 +20,10 @@ public class ChapterImageService implements IChapterImageService {
         this.chapterRepository = chapterRepository;
         this.chapterImageRepository = chapterImageRepository;
     }
+    @Override
+    public ChapterImage getChapterImageById( Long chapterImageId){
+        return chapterImageRepository.findById(chapterImageId).orElse(null);
+    }
 
     public List<ChapterImage> getChapterImagesByChapterId(Long chapterId) {
         Optional<Chapter> optionalChapter = this.chapterRepository.findById(chapterId);
@@ -30,25 +34,13 @@ public class ChapterImageService implements IChapterImageService {
         }
     }
 
-    public ChapterImage saveChapterImage(Long chapterId, ChapterImage chapterImage) {
-        Optional<Chapter> optionalChapter = this.chapterRepository.findById(chapterId);
-        if (optionalChapter.isPresent()) {
-            Chapter chapter = (Chapter)optionalChapter.get();
-            chapterImage.setChapter(chapter);
-            return (ChapterImage)this.chapterImageRepository.save(chapterImage);
-        } else {
-            throw new IllegalArgumentException("Chapter not found with ID: " + chapterId);
-        }
+    public ChapterImage createChapterImage(ChapterImage chapterImage) {
+        return chapterImageRepository.save(chapterImage);
     }
 
-    public ChapterImage updateChapterImage(Long chapterId, Long imageId, ChapterImage chapterImage) {
-        Optional<ChapterImage> optionalChapterImage = this.chapterImageRepository.findByIdAndChapterId(imageId, chapterId);
-        if (optionalChapterImage.isPresent()) {
-            ChapterImage existingChapterImage = (ChapterImage)optionalChapterImage.get();
-            return (ChapterImage)this.chapterImageRepository.save(existingChapterImage);
-        } else {
-            throw new IllegalArgumentException("Chapter Image not found with ID: " + imageId + " for Chapter ID: " + chapterId);
-        }
+    public ChapterImage updateChapterImage(Long imageId, ChapterImage chapterImage) {
+        chapterImage.setId(imageId);
+        return chapterImageRepository.save(chapterImage);
     }
 
     public void deleteChapterImage(Long chapterId, Long imageId) {

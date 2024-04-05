@@ -1,5 +1,6 @@
 package com.example.sweet_peach_be.services.impl;
 
+import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.services.IChapterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,16 +25,14 @@ public class ChapterService implements IChapterService {
     public Chapter createChapter(Chapter chapter) {
         return chapterRepository.save(chapter);
     }
+    @Override
+    public Chapter getChapterById(Long id) {
+        return chapterRepository.findById(id).orElse(null);
+    }
 
     public Chapter updateChapter(Long id, Chapter updatedChapter) {
-        Chapter existingChapter = chapterRepository.findById(id).orElse(null);
-        if (existingChapter != null) {
-            existingChapter.setTitle(updatedChapter.getTitle());
-            existingChapter.setChapterNumber(updatedChapter.getChapterNumber());
-            // Cập nhật các trường khác nếu cần
-            return chapterRepository.save(existingChapter);
-        }
-        return null;
+        updatedChapter.setId(id);
+        return chapterRepository.save(updatedChapter);
     }
 
     public void deleteChapter(Long id) {

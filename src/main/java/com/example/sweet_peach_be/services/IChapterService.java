@@ -9,6 +9,7 @@ public interface IChapterService {
     public Chapter createChapter(Chapter chapter);
     Chapter updateChapter(Long id, Chapter updatedChapter);
     public void deleteChapter(Long id);
+    Chapter getChapterById(Long id);
     List<Chapter>getChaptersByComicId(Long comicId);
     Chapter incrementViewCount(Long id);
 }
