@@ -12,5 +12,7 @@ public interface IChapterImageService {
 
     ChapterImage updateChapterImage(Long imageId, ChapterImage chapterImage);
 
-    void deleteChapterImage(Long chapterId, Long imageId);
+    void deleteChapterImage(Long imageId);
+
+
 }

@@ -14,7 +14,6 @@ public interface ChapterImageRepository extends JpaRepository<ChapterImage, Long
 
     List<ChapterImage> findByChapterIdAndIsDeletedFalse(Long chapterId);
 
-    Optional<ChapterImage> findByIdAndChapterId(Long imageId, Long chapterId);
 
     List<ChapterImage> findChapterImagesByChapterId(Long chapterId);
 }

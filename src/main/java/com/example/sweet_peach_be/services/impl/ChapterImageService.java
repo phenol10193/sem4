@@ -43,14 +43,14 @@ public class ChapterImageService implements IChapterImageService {
         return chapterImageRepository.save(chapterImage);
     }
 
-    public void deleteChapterImage(Long chapterId, Long imageId) {
-        Optional<ChapterImage> optionalChapterImage = this.chapterImageRepository.findByIdAndChapterId(chapterId, imageId);
+    public void deleteChapterImage(Long imageId) {
+        Optional<ChapterImage> optionalChapterImage = this.chapterImageRepository.findById(imageId);
         if (optionalChapterImage.isPresent()) {
             ChapterImage chapterImage = (ChapterImage)optionalChapterImage.get();
             chapterImage.setDeleted(true);
             this.chapterImageRepository.save(chapterImage);
         } else {
-            throw new IllegalArgumentException("Chapter not found with ID: " + chapterId + " and Image ID: " + imageId);
+            throw new IllegalArgumentException("Image not found with ID:" + imageId);
         }
     }
 }

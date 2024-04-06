@@ -21,7 +21,7 @@ public class UserReadingHistory {
     private Chapter chapter;
 
     private boolean isDeleted;
-
+    private boolean isRead;
     public Long getId() {
         return id;
     }
@@ -59,6 +59,14 @@ public class UserReadingHistory {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
     }
     // Getters and setters
 }

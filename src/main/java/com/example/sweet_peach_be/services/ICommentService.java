@@ -3,17 +3,17 @@ package com.example.sweet_peach_be.services;
 
 import com.example.sweet_peach_be.models.Comment;
 import java.util.List;
+import java.util.Optional;
 
 public interface ICommentService {
-    Comment saveComment(Long comicId, Long chapterId, Long userId, Comment comment);
 
-    Comment updateComment(Long commentId, Long comicId, Long chapterId, Long userId, Comment commentDetails);
+    Comment saveComment( Comment comment);
 
-    List<Comment> getCommentsByUser(Long userId);
+    Comment updateComment(Long commentId, Comment commentDetails);
 
-    List<Comment> getCommentsByComic(Long comicId);
+    Comment getCommentsById(Long Id);
 
-    List<Comment> getCommentsByChapter(Long chapterId);
+    List<Comment> getAllComment();
 
-    void deleteComment(Long commentId, Long chapterId, Long userId, Long comicId);
+    void deleteComment(Long commentId);
 }

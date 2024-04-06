@@ -88,8 +88,8 @@ public class ChapterImageController {
     }
 
 
-    @DeleteMapping({"/{chapterId}/{imageId}"})
-    public void deleteChapterImage(@PathVariable Long chapterId, @PathVariable Long imageId) {
-        this.chapterImageService.deleteChapterImage(chapterId, imageId);
+    @DeleteMapping({"/{imageId}"})
+    public void deleteChapterImage(@PathVariable Long imageId) {
+        this.chapterImageService.deleteChapterImage(imageId);
     }
 }
