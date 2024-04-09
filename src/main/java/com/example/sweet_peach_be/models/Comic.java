@@ -2,6 +2,10 @@ package com.example.sweet_peach_be.models;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Table(name = "comics")
 public class Comic {
@@ -9,7 +13,8 @@ public class Comic {
     @Column(name = "comic_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL)
+    private List<Chapter> chapters;
     private String title;
     private String coverImage;
     private String description;
@@ -19,6 +24,15 @@ public class Comic {
     private String status;
 
     private boolean isDeleted;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "comic_genres",
+            joinColumns = @JoinColumn(name = "comic_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private Set<Genre> genres = new HashSet<>();
+
+    public Set<Genre> getGenres() {
+        return genres;
+    }
 
     public Long getId() {
         return id;
@@ -34,6 +48,10 @@ public class Comic {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public List<Chapter> getChapters() {
+        return chapters;
     }
 
     public String getCoverImage() {

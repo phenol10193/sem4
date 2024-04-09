@@ -1,6 +1,8 @@
 package com.example.sweet_peach_be.controllers;
 
+import com.example.sweet_peach_be.dtos.ComicListItem;
 import com.example.sweet_peach_be.models.Comic;
+import com.example.sweet_peach_be.models.Chapter;
 import com.example.sweet_peach_be.services.IComicService;
 import com.example.sweet_peach_be.services.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -20,8 +23,14 @@ public class ComicController {
     private IComicService comicService;
     @Autowired
     private UploadService uploadService;
+
+
+    @GetMapping("getalls")
+    public List<ComicListItem>getAllComicItems(){
+        return comicService.getAllComicItems();
+    }
     @GetMapping("/newest")
-    public ResponseEntity<List<Comic>> getNewestComics(@RequestParam(name = "limit", defaultValue = "6") int limit) {
+    public ResponseEntity<List<Comic>> getNewestComics(@RequestParam(name = "limit", defaultValue = "10") int limit) {
         List<Comic> newestComics = comicService.getNewestComics(limit);
         return new ResponseEntity<>(newestComics, HttpStatus.OK);
     }
@@ -32,16 +41,31 @@ public class ComicController {
         List<Comic> hotComics = comicService.getHotComics(period, limit);
         return new ResponseEntity<>(hotComics, HttpStatus.OK);
     }
+
+    @GetMapping("/genre/{genreId}")
+    public ResponseEntity<List<Comic>> getComicsByGenreId(@PathVariable Long genreId) {
+        List<Comic> comics = comicService.getComicsByGenreId(genreId);
+        return new ResponseEntity<>(comics, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<List<Comic>> getAllComics() {
         List<Comic> comics = comicService.getAllComics();
         return new ResponseEntity<>(comics, HttpStatus.OK);
     }
 
-    @GetMapping("/{title}")
-    public ResponseEntity<Comic> getComicById(@PathVariable String title) {
-        Comic comic = comicService.getComicByTitle(title);
-        return new ResponseEntity<>(comic, comic != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+    @GetMapping("{id}")
+    public ResponseEntity<Comic> getComicById(@PathVariable Long id) {
+        Optional<Comic> optionalComic = Optional.ofNullable(comicService.getComicById(id));
+        return optionalComic.map(comic -> new ResponseEntity<>(comic, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("{id}/chapters")
+    public ResponseEntity<List<Chapter>> getChaptersByComicId(@PathVariable Long id) {
+        List<Chapter> chapters = comicService.getChaptersByComicId(id);
+        return chapters != null ? new ResponseEntity<>(chapters, HttpStatus.OK) :
+                new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/create")
@@ -102,5 +126,20 @@ public class ComicController {
     public ResponseEntity<Void> deleteComic(@PathVariable Long id) {
         comicService.deleteComic(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/newest1")
+    public List<ComicListItem> getNewestComicsv1(@RequestParam int limit) {
+        return comicService.getNewestComicItems(limit);
+    }
+
+    @GetMapping("/hot1")
+    public List<ComicListItem> getHotComicsv1(@RequestParam String period, @RequestParam int limit) {
+        return comicService.getHotComicItems(period, limit);
+    }
+
+    @GetMapping("/genre1/{genreId}")
+    public List<ComicListItem> getComicsByGenreIdv1(@RequestParam Long genreId) {
+        return comicService.getComicItemsByGenreId(genreId);
     }
 }

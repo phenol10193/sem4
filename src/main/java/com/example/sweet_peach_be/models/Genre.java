@@ -1,7 +1,9 @@
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -14,10 +16,8 @@ public class Genre {
     private String name;
     @Column(name = "is_deleted")
     private boolean isDeleted;
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
+    @ManyToMany(mappedBy = "genres")
+    private Set<Comic> comics = new HashSet<>();
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;

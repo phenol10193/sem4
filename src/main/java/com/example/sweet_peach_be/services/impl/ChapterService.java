@@ -1,5 +1,7 @@
 package com.example.sweet_peach_be.services.impl;
 
+import com.example.sweet_peach_be.models.Comic;
+import com.example.sweet_peach_be.repositories.ComicRepository;
 import com.example.sweet_peach_be.services.IChapterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +13,12 @@ import java.util.List;
 public class ChapterService implements IChapterService {
 
     private final ChapterRepository chapterRepository;
+    private final ComicRepository comicRepository;
 
     @Autowired
-    public ChapterService(ChapterRepository chapterRepository) {
+    public ChapterService(ChapterRepository chapterRepository, ComicRepository comicRepository) {
         this.chapterRepository = chapterRepository;
+        this.comicRepository = comicRepository;
     }
 
     public List<Chapter> getAllChapters() {
@@ -48,15 +52,25 @@ public class ChapterService implements IChapterService {
     public List<Chapter> getChaptersByComicId(Long comicId) {
         return chapterRepository.findByComicIdAndIsDeletedFalse(comicId);
     }
-
+    @Override
     public Chapter incrementViewCount(Long id) {
         Chapter chapter = chapterRepository.findById(id).orElse(null);
         if (chapter != null) {
             int currentViewCount = chapter.getViewCount();
             chapter.setViewCount(currentViewCount + 1);
-            return chapterRepository.save(chapter);
+            chapter = chapterRepository.save(chapter);
+
+
+            Comic comic = comicRepository.findById(chapter.getComicId()).orElse(null);
+            if (comic != null) {
+                comic.setViewCount(comic.getViewCount() + 1);
+                comicRepository.save(comic);
+            }
+
+            return chapter;
         }
         return null;
     }
+
 }
 

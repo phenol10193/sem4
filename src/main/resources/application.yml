@@ -13,6 +13,10 @@ spring:
           auth: true
           starttls:
             enable: true
-  server:
-    address: 192.168.0.102
-    port: 8080
+server:
+   address:  192.168.232.124
+   port: 8080
+jwt:
+  secret: mySecretKey
+  expiration: 2592000000
+

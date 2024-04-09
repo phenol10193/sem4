@@ -21,4 +21,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     @Query("SELECT c FROM Chapter c ORDER BY c.updatedAt DESC")
     List<Chapter> findTopChaptersOrderByUpdatedAtDesc(@Param("limit") int limit);
+
+    Chapter findFirstByComicIdOrderByChapterNumberDesc(Long id);
 }

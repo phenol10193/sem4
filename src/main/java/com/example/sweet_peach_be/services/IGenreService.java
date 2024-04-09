@@ -12,6 +12,6 @@ public interface IGenreService {
     Genre saveGenre(Genre genre);
     Genre updateGenre(Genre genre);
     void hideGenre(Long id);
-    List<TopGenreDto> getTop6GenresByViewCount();
+    List<TopGenreDto> getTop6GenresByViewCount(int limit);
 }
 

@@ -21,7 +21,7 @@ public class ChapterController {
         this.chapterService = chapterService;
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<Chapter>> getAllChapters() {
         List<Chapter> chapters = chapterService.getAllChapters();
         return new ResponseEntity<>(chapters, HttpStatus.OK);

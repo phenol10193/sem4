@@ -2,6 +2,9 @@ package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "chapters")
@@ -21,8 +24,15 @@ public class Chapter {
     private int viewCount;
     private boolean isDeleted;
     private Timestamp updatedAt;
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChapterImage> chapterImages = new ArrayList<>();
     public Long getId() {
         return id;
+    }
+
+    public List<ChapterImage> getChapterImages() {
+        return chapterImages;
     }
 
     public boolean isDeleted() {
@@ -33,8 +43,8 @@ public class Chapter {
         isDeleted = deleted;
     }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt.toLocalDateTime();
     }
 
     public void setUpdatedAt(Timestamp updatedAt) {
@@ -49,9 +59,9 @@ public class Chapter {
         return comic.getTitle();
     }
 
-    public void setComic(Comic comic) {
-        this.comic = comic;
-    }
+//    public void setComic(Comic comic) {
+//        this.comic = comic;
+//    }
 
     public Long getComicId() {
         return comicId;
@@ -81,7 +91,8 @@ public class Chapter {
         this.viewCount = viewCount;
     }
 
-
-
+    public void setComicId(Long comicId) {
+        this.comicId = comicId;
+    }
 }
 

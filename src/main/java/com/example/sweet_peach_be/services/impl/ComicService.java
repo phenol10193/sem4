@@ -1,7 +1,9 @@
 package com.example.sweet_peach_be.services.impl;
 
+import com.example.sweet_peach_be.dtos.ComicListItem;
 import com.example.sweet_peach_be.models.Chapter;
 import com.example.sweet_peach_be.models.Comic;
+import com.example.sweet_peach_be.models.UserReadingHistory;
 import com.example.sweet_peach_be.models.ViewCountStatistics;
 import com.example.sweet_peach_be.repositories.ChapterRepository;
 import com.example.sweet_peach_be.repositories.ComicRepository;
@@ -10,11 +12,10 @@ import com.example.sweet_peach_be.services.IComicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -26,30 +27,33 @@ public class ComicService implements IComicService {
     private ChapterRepository chapterRepository;
     @Autowired
     private ViewCountStatisticsRepository viewCountStatisticsRepository;
+    @Autowired
+    private UserReadingHistoryService userReadingHistoryService;
 
     @Override
     public List<Comic> getAllComics() {
         return comicRepository.findAllByIsDeletedFalse();
     }
 
-
-
-    @Override
-    public Comic getComicByTitle(String title) {
-        return (Comic) comicRepository.findByIsDeletedFalseAndTitle(title).orElse(null);
-    }
-
     @Override
     public Comic createComic(Comic comic) {
         return comicRepository.save(comic);
     }
-
     @Override
     public Comic updateComic(Long id, Comic comic) {
         comic.setId(id);
         return comicRepository.save(comic);
     }
-
+    @Override
+    public List<Chapter> getChaptersByComicId(Long id) {
+        Optional<Comic> optionalComic = comicRepository.findById(id);
+        if (optionalComic.isPresent()) {
+            Comic comic = optionalComic.get();
+            return comic.getChapters();
+        } else {
+            return null; // Hoặc throw exception nếu cần
+        }
+    }
     @Override
     public void deleteComic(Long id) {
         Comic comic = comicRepository.findById(id).orElse(null);
@@ -82,14 +86,12 @@ public class ComicService implements IComicService {
             viewCount += statistics.getViewCount();
             comicViewCounts.put(comicId, viewCount);
         }
-
         // In kết quả tổng số lượt xem của mỗi truyện
         for (Map.Entry<Long, Integer> entry : comicViewCounts.entrySet()) {
             Long comicId = entry.getKey();
             Integer viewCount = entry.getValue();
             System.out.println("Comic ID: " + comicId + ", Total View Count: " + viewCount);
         }
-
         // Sắp xếp các truyện dựa trên tổng số lượt xem và chỉ lấy ra số lượng truyện cần thiết
         List<Long> hotComicIds = comicViewCounts.entrySet().stream()
                 .sorted((c1, c2) -> c2.getValue().compareTo(c1.getValue()))
@@ -103,10 +105,92 @@ public class ComicService implements IComicService {
 
         return hotComicIds.stream().map(comicMap::get).collect(Collectors.toList());
     }
-
+    @Override
+    public List<Comic> getComicsByGenreId(Long genreId) {
+        return comicRepository.findByIsDeletedFalseAndGenresId(genreId);
+    }
     @Override
     public Comic getComicById(Long id) {
         return comicRepository.findById(id).orElse(null);
+    }
+    @Override
+    public List<ComicListItem> getAllComicItems() {
+        List<Comic> allComic=getAllComics();
+        return allComic.stream()
+                .map(this::mapComicToItem)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComicListItem> getNewestComicItems(int limit) {
+        List<Comic> newestComics = getNewestComics(limit);
+        return newestComics.stream()
+                .map(this::mapComicToItem)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<ComicListItem> getHotComicItems(String period, int limit) {
+        List<Comic> hotComics = getHotComics(period, limit);
+        return hotComics.stream()
+                .map(this::mapComicToItem)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<ComicListItem> getComicItemsByGenreId(Long genreId) {
+        List<Comic> comicsByGenreId = getComicsByGenreId(genreId);
+        return comicsByGenreId.stream()
+                .map(this::mapComicToItem)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Comic> getReadComicsByUserId(Long userId) {
+        // Lấy danh sách lịch sử đọc của người dùng
+        List<UserReadingHistory> readingHistory = userReadingHistoryService.getReadingHistory(userId);
+
+        // Lấy danh sách truyện đã đọc từ danh sách lịch sử
+        List<Comic> readComics = new ArrayList<>();
+        for (UserReadingHistory history : readingHistory) {
+            Comic comic = comicRepository.findById(history.getComicId()).orElse(null);
+            if (comic != null) {
+                readComics.add(comic);
+            }
+        }
+
+        return readComics;
+    }
+    @Override
+    public List<ComicListItem> getComicHistory(Long userId) {
+        List<Comic> comicsHistory = getReadComicsByUserId( userId);
+        return comicsHistory.stream()
+                .map(this::mapComicToItem)
+                .collect(Collectors.toList());
+    }
+    private ComicListItem mapComicToItem(Comic comic) {
+        ComicListItem item = new ComicListItem();
+        item.setId(comic.getId());
+        item.setCoverImage(comic.getCoverImage());
+        item.setTitle(comic.getTitle());
+        item.setViewCount(comic.getViewCount());
+        item.setFollowCount(comic.getFollowCount());
+        Chapter latestChapter = chapterRepository.findFirstByComicIdOrderByChapterNumberDesc(comic.getId());
+        if (latestChapter != null) {
+            item.setLatestChapterTitle(latestChapter.getTitle());
+            item.setTimeSinceLastUpdate(calculateTimeSinceLastUpdate(latestChapter.getUpdatedAt()));
+        }
+        return item;
+    }
+
+    private String calculateTimeSinceLastUpdate(LocalDateTime updatedAt) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(updatedAt, now);
+        long hours = duration.toHours();
+        if (hours < 24) {
+            return hours + "h";
+        } else {
+            long days = duration.toDays();
+            return days + "d";
+        }
     }
 
 }

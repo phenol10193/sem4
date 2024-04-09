@@ -13,5 +13,9 @@ public class UserRegistrationRequest {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
 }
 
