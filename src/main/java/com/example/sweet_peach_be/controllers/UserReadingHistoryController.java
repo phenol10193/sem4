@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reading-history")
+@CrossOrigin
 public class UserReadingHistoryController {
 
     private final IUserReadingHistoryService userReadingHistoryService;

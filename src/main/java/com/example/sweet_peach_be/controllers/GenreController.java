@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/genres")
+@CrossOrigin
 public class GenreController {
 
     @Autowired

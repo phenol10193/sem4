@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Comic</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Create Comic</h1>
+    </div>
+    <div class="content">
+        <div class="form-container">
+            <!-- Form to create a new comic -->
+            <form id="create-comic-form" enctype="multipart/form-data">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required><br><br>
+
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" required></textarea><br><br>
+
+                <label for="status">Status:</label>
+                <input type="text" id="status" name="status" required><br><br>
+
+                <label for="coverImage">Cover Image:</label>
+                <input type="file" id="coverImage" name="coverImage" accept="image/*" required><br><br>
+
+                <label for="genres">Genres:</label><br>
+                <!-- Checkboxes for selecting genres -->
+                <div id="genres-checkboxes">
+                    <!-- Data will be added here -->
+                </div>
+
+                <button type="submit">Create Comic</button>
+            </form>
+
+            <!-- Script to handle AJAX requests -->
+
+            <script>
+                $(document).ready(function() {
+                    loadGenres();
+                });
+
+                function loadGenres() {
+                    $.ajax({
+                        url: 'http://localhost:8080/api/genres',
+                        type: 'GET',
+                        success: function(data) {
+                            displayGenresCheckboxes(data);
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+
+                function displayGenresCheckboxes(genres) {
+                    var checkboxesDiv = $('#genres-checkboxes');
+                    checkboxesDiv.empty();
+
+                    genres.forEach(function(genre) {
+                        var checkbox = '<input type="checkbox" id="genre_' + genre.id + '" name="genres" value="' + genre.id + '">';
+                        checkbox += '<label for="genre_' + genre.id + '">' + genre.name + '</label><br>';
+
+                        checkboxesDiv.append(checkbox);
+                    });
+                }
+
+                $('#create-comic-form').submit(function(event) {
+                    event.preventDefault();
+
+                    var formData = new FormData(this);
+
+                    // Get selected genres
+                    var selectedGenres = [];
+                    $('#genres-checkboxes input:checked').each(function() {
+                        selectedGenres.push($(this).val());
+                    });
+                    formData.append('selectedGenres', JSON.stringify(selectedGenres));
+
+                    $.ajax({
+                        url: 'http://localhost:8080/api/comics/create',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            alert('Comic created successfully!');
+                            // Redirect or display success message
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.log(xhr.responseText);
+                            alert('Error creating comic. Please try again.');
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+</body>
+</html>

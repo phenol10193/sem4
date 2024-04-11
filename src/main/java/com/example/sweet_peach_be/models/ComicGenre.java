@@ -1,3 +1,4 @@
+
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 @Entity

@@ -1,6 +1,5 @@
 package com.example.sweet_peach_be.repositories;
 
-import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.ViewCountStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

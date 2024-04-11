@@ -1,6 +1,5 @@
 package com.example.sweet_peach_be.services.impl;
 
-import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.User;
 import com.example.sweet_peach_be.models.UserReadingHistory;
 import com.example.sweet_peach_be.models.Chapter;

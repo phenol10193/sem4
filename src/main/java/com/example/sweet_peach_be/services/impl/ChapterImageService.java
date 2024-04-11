@@ -9,12 +9,16 @@ import com.example.sweet_peach_be.repositories.ChapterRepository;
 import com.example.sweet_peach_be.services.IChapterImageService;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChapterImageService implements IChapterImageService {
-    private final ChapterImageRepository chapterImageRepository;
-    private final ChapterRepository chapterRepository;
+    @Autowired
+    private  ChapterImageRepository chapterImageRepository;
+    @Autowired
+    private  ChapterRepository chapterRepository;
 
     public ChapterImageService(ChapterRepository chapterRepository, ChapterImageRepository chapterImageRepository) {
         this.chapterRepository = chapterRepository;

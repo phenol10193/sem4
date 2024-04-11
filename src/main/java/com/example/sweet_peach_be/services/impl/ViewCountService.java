@@ -1,6 +1,5 @@
 package com.example.sweet_peach_be.services.impl;
 
-import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.ViewCountStatistics;
 import com.example.sweet_peach_be.repositories.ViewCountStatisticsRepository;
 import org.springframework.beans.factory.annotation.Autowired;

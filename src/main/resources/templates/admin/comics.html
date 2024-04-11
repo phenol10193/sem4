@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <title>Comics</title>
+</head>
+<body>
+<!-- Button to create a new comic -->
+<button onclick="redirectToCreateComic()">Create New Comic</button>
+
+<!-- Search Form -->
+<form id="search-form">
+    <label for="search">Search by Title:</label>
+    <input type="text" id="search" name="search">
+    <button type="submit">Search</button>
+</form>
+
+<!-- Table of Comics -->
+<table id="comics-table">
+    <thead>
+    <tr>
+        <th>Cover Image</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Genres</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="comics-table-body">
+    <!-- Iterate through comics and display each comic -->
+    <tr th:each="comic : ${comics}">
+        <td><img th:src="${comic.coverImage}" width="100" height="100" alt="Comic Cover Image"></td>
+        <td th:text="${comic.title}"></td>
+        <td th:text="${comic.description}"></td>
+        <td th:text="${comic.status}"></td>
+        <td>
+            <ul>
+                <!-- Iterate through genres of each comic and display -->
+                <li th:each="genre : ${comic.genres}" th:text="${genre.name}"></li>
+            </ul>
+        </td>
+        <td>
+            <!-- Edit button -->
+            <button th:onclick="'editComic(' + ${comic.id} + ')'">Edit</button>
+            <!-- Delete button -->
+            <button th:onclick="'deleteComic(' + ${comic.id} + ')'">Delete</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Script to handle AJAX requests -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    console.log('hiển thị treen trang html đi mà');
+    $(document).ready(function() {
+        loadComics();
+
+        // Search form submit event
+        $('#search-form').submit(function(event) {
+            event.preventDefault();
+            var searchValue = $('#search').val();
+            searchComics(searchValue);
+        });
+    });
+
+    function loadComics() {
+        $.ajax({
+            url: 'http://localhost:8080/api/comics',
+            type: 'GET',
+            success: function(data) {
+                console.log('hiển thị treen trang html đi mà');
+                displayComics(data);
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.log(xhr.responseText);
+            }
+        });
+    }
+
+    function displayComics(comics) {
+        var tableBody = $('#comics-table-body');
+        tableBody.empty();
+
+        comics.forEach(function(comic) {
+            var row = '<tr>';
+            row += '<td><img src="' + comic.coverImage + '" width="100" height="100" alt="Comic Cover Image"></td>';
+            row += '<td>' + comic.title + '</td>';
+            row += '<td>' + comic.description + '</td>';
+            row += '<td>' + comic.status + '</td>';
+            row += '<td>';
+
+            // Display genres as a list
+            row += '<ul>';
+            comic.genres.forEach(function(genre) {
+                row += '<li>' + genre.name + '</li>';
+            });
+            row += '</ul>';
+
+            row += '</td>';
+
+            // Action buttons
+            row += '<td>';
+            row += '<button onclick="editComic(' + comic.id + ')">Edit</button>';
+            row += '<button onclick="deleteComic(' + comic.id + ')">Delete</button>';
+            row += '</td>';
+
+            row += '</tr>';
+
+            tableBody.append(row);
+        });
+    }
+
+    function editComic(comicId) {
+        // Redirect to edit-comic.html with comicId as parameter
+        window.location.href = 'http://localhost:8080/edit-comic.html?id=' + comicId;
+    }
+
+    function deleteComic(comicId) {
+        if (confirm('Are you sure you want to delete this comic?')) {
+            $.ajax({
+                url: 'http://localhost:8080/api/comics/delete/' + comicId,
+                type: 'DELETE',
+                success: function(data) {
+                    alert('Comic deleted successfully!');
+                    loadComics();
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log(xhr.responseText);
+                    alert('Error deleting comic. Please try again.');
+                }
+            });
+        }
+    }
+
+    function redirectToCreateComic() {
+        // Redirect to create-comic.html
+        window.location.href = 'http://localhost:8080/create-comic.html';
+    }
+</script>
+</body>
+</html>

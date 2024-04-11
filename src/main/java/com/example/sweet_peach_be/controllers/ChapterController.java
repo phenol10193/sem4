@@ -1,6 +1,5 @@
 package com.example.sweet_peach_be.controllers;
 
-import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.services.IChapterService;
 import com.example.sweet_peach_be.services.IComicService;
 import com.example.sweet_peach_be.services.impl.ChapterService;
@@ -11,14 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.sweet_peach_be.models.Chapter;
 
-import javax.xml.crypto.Data;
-import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/chapters")
+@CrossOrigin
 public class ChapterController {
 
     private final IChapterService chapterService;

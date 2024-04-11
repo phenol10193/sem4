@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/followed-comics")
+@CrossOrigin
 public class UserFollowedComicsController {
 
     private final IUserFollowedComicsService userFollowedComicsService;

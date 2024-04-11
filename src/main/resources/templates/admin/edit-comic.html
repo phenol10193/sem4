@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Comic</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Edit Comic</h1>
+    </div>
+    <div class="content">
+        <div class="form-container">
+
+            <!-- Form to Edit Comic -->
+            <form id="edit-comic-form">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required><br>
+
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="4" required></textarea><br>
+
+                <label for="status">Status:</label>
+                <input type="text" id="status" name="status" required><br>
+
+                <label for="cover-image">Cover Image:</label>
+                <input type="file" id="cover-image" name="cover-image" accept="image/*"><br>
+
+                <label for="genres">Genres:</label><br>
+                <div id="genres-checkboxes">
+                    <!-- Genres checkboxes will be added here -->
+                </div><br>
+
+                <button type="submit">Update Comic</button>
+            </form>
+        </div>
+
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Function to load comic details for editing
+        function loadComicDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const comicId = urlParams.get('id');
+
+            $.ajax({
+                url: 'http://localhost:8080/api/comics/' + comicId,
+                type: 'GET',
+                success: function(comic) {
+                    $('#title').val(comic.title);
+                    $('#description').val(comic.description);
+                    $('#status').val(comic.status);
+                    loadGenresCheckboxes(comic.genres);
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        // Function to load genres checkboxes
+        function loadGenresCheckboxes(selectedGenres) {
+            $.ajax({
+                url: 'http://localhost:8080/api/genres',
+                type: 'GET',
+                success: function(genres) {
+                    var checkboxes = '';
+                    genres.forEach(function(genre) {
+                        var isChecked = selectedGenres.some(g => g.id === genre.id) ? 'checked' : '';
+                        checkboxes += '<input type="checkbox" id="genre-' + genre.id + '" name="genres" value="' + genre.id + '" ' + isChecked + '>';
+                        checkboxes += '<label for="genre-' + genre.id + '">' + genre.name + '</label><br>';
+                    });
+                    $('#genres-checkboxes').html(checkboxes);
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        // Function to update comic
+        $('#edit-comic-form').submit(function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            var selectedGenres = [];
+            $('#genres-checkboxes input:checked').each(function() {
+                selectedGenres.push($(this).val());
+            });
+            formData.append('genres', JSON.stringify(selectedGenres));
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const comicId = urlParams.get('id');
+
+            $.ajax({
+                url: 'http://localhost:8080/api/comics/update/' + comicId,
+                type: 'PUT',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(updatedComic) {
+                    window.location.href = 'comic.html';
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+
+        // Load comic details when the page is ready
+        loadComicDetails();
+    });
+</script>
+</body>
+</html>

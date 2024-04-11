@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping({"/api/chapter-images"})
+@CrossOrigin
 public class ChapterImageController {
     private final IChapterImageService chapterImageService;
     @Autowired

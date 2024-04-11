@@ -1,7 +1,8 @@
-package com.example.sweet_peach_be.services;
+package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.models.UserFollowedComics;
 import com.example.sweet_peach_be.repositories.UserFollowedComicsRepository;
+import com.example.sweet_peach_be.services.IUserFollowedComicsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
