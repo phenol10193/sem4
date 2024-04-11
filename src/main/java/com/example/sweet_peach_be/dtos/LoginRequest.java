@@ -22,4 +22,3 @@ public class LoginRequest {
 
     // Constructor, getters, setters
 }
-

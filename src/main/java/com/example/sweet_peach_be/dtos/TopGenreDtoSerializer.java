@@ -19,6 +19,7 @@ public class TopGenreDtoSerializer extends StdSerializer<TopGenreDto> {
     @Override
     public void serialize(TopGenreDto value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
+        gen.writeNumberField("id",value.getGenreId());
         gen.writeStringField("genreName", value.getGenreName());
         gen.writeNumberField("totalViewCount", value.getTotalViewCount());
         gen.writeEndObject();

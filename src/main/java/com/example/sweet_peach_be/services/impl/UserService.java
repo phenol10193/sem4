@@ -7,6 +7,8 @@ import com.example.sweet_peach_be.repositories.UserRepository;
 import com.example.sweet_peach_be.services.EmailService;
 import com.example.sweet_peach_be.services.IUserService;
 import com.example.sweet_peach_be.services.TokenService;
+import com.example.sweet_peach_be.services.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,6 +23,11 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private TokenService tokenService;
+    @Autowired
+    private JwtService jwtService;
+
     public List<User> getAllUsers() {
         return userRepository.findByIsDeletedFalse();
     }
@@ -58,11 +65,21 @@ public class UserService implements IUserService {
         user.setDeleted(true);
         userRepository.save(user);
     }
-    public User login(String email, String password) {
-        return userRepository.findByEmailAndPasswordAndIsDeletedFalse(email, password);
+
+    public String login(String email, String password) {
+        User user = userRepository.findByEmailAndPasswordAndIsDeletedFalse(email, password);
+        if (user == null) {
+            throw new ResourceNotFoundException("Invalid email or password");
+        }
+        return jwtService.generateToken(email);
     }
-    @Autowired
-    private TokenService tokenService;
+
+
+    @Value("${server.address}")
+    private String serverAddress;
+
+    @Value("${server.port}")
+    private String serverPort;
 
     public void registerUser(User user) throws MessagingException, jakarta.mail.MessagingException {
         // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
@@ -82,7 +99,7 @@ public class UserService implements IUserService {
 
     private void sendVerificationEmail(String email, String token) throws MessagingException, jakarta.mail.MessagingException {
         // Triển khai logic để gửi email xác thực
-        String verificationLink = "http://localhost:8080/verify?token=" + token;
+        String verificationLink = "http://" + serverAddress + ":" + serverPort + "/verify?token=" + token;
         String emailBody = "Please click on the link to verify your email: " + verificationLink;
         emailService.sendEmail(email, "Email Verification", emailBody);
     }

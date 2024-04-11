@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Comics</title>
 </head>
 <body>
@@ -31,31 +32,14 @@
     </thead>
     <tbody id="comics-table-body">
     <!-- Iterate through comics and display each comic -->
-    <tr th:each="comic : ${comics}">
-        <td><img th:src="${comic.coverImage}" width="100" height="100" alt="Comic Cover Image"></td>
-        <td th:text="${comic.title}"></td>
-        <td th:text="${comic.description}"></td>
-        <td th:text="${comic.status}"></td>
-        <td>
-            <ul>
-                <!-- Iterate through genres of each comic and display -->
-                <li th:each="genre : ${comic.genres}" th:text="${genre.name}"></li>
-            </ul>
-        </td>
-        <td>
-            <!-- Edit button -->
-            <button th:onclick="'editComic(' + ${comic.id} + ')'">Edit</button>
-            <!-- Delete button -->
-            <button th:onclick="'deleteComic(' + ${comic.id} + ')'">Delete</button>
-        </td>
-    </tr>
+
     </tbody>
 </table>
 
 <!-- Script to handle AJAX requests -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    console.log('hiển thị treen trang html đi mà');
+
     $(document).ready(function() {
         loadComics();
 
@@ -72,8 +56,8 @@
             url: 'http://localhost:8080/api/comics',
             type: 'GET',
             success: function(data) {
-                console.log('hiển thị treen trang html đi mà');
                 displayComics(data);
+
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log(xhr.responseText);
@@ -82,41 +66,79 @@
     }
 
     function displayComics(comics) {
+        console.log('Displaying comics:', comics);
         var tableBody = $('#comics-table-body');
         tableBody.empty();
 
         comics.forEach(function(comic) {
-            var row = '<tr>';
-            row += '<td><img src="' + comic.coverImage + '" width="100" height="100" alt="Comic Cover Image"></td>';
-            row += '<td>' + comic.title + '</td>';
-            row += '<td>' + comic.description + '</td>';
-            row += '<td>' + comic.status + '</td>';
-            row += '<td>';
+            var row = $('<tr></tr>');
 
-            // Display genres as a list
-            row += '<ul>';
-            comic.genres.forEach(function(genre) {
-                row += '<li>' + genre.name + '</li>';
+            var coverImageCell = $('<td></td>');
+            var coverImage = $('<img>');
+            coverImage.attr('src', comic.coverImage);
+            coverImage.attr('width', '100');
+            coverImage.attr('height', '100');
+            coverImage.attr('alt', 'Comic Cover Image');
+            coverImageCell.append(coverImage);
+            row.append(coverImageCell);
+
+            var titleCell = $('<td></td>');
+            titleCell.text(comic.title);
+            row.append(titleCell);
+
+            var descriptionCell = $('<td></td>');
+            descriptionCell.text(comic.description);
+            row.append(descriptionCell);
+
+            var statusCell = $('<td></td>');
+            statusCell.text(comic.status);
+            row.append(statusCell);
+
+            var genresCell = $('<td></td>');
+
+            var genresList = $('<ul></ul>');
+
+            // Kiểm tra nếu comic.genres là một mảng và có ít nhất một phần tử
+            if (Array.isArray(comic.genres) && comic.genres.length > 0) {
+                comic.genres.forEach(function(genre) {
+                    var genresItem = $('<li></li>');
+                    genresItem.text(genre.name);
+                    genresList.append(genresItem);
+                });
+            } else {
+                var noGenres = $('<li>No genres available</li>');
+                genresList.append(noGenres);
+            }
+
+            genresCell.append(genresList);
+            row.append(genresCell);
+
+            var actionsCell = $('<td></td>');
+
+            var editButton = $('<button></button>');
+            editButton.text('Edit');
+            editButton.on('click', function() {
+                editComic(comic.id);
             });
-            row += '</ul>';
 
-            row += '</td>';
+            var deleteButton = $('<button></button>');
+            deleteButton.text('Delete');
+            deleteButton.on('click', function() {
+                deleteComic(comic.id);
+            });
 
-            // Action buttons
-            row += '<td>';
-            row += '<button onclick="editComic(' + comic.id + ')">Edit</button>';
-            row += '<button onclick="deleteComic(' + comic.id + ')">Delete</button>';
-            row += '</td>';
-
-            row += '</tr>';
+            actionsCell.append(editButton);
+            actionsCell.append(deleteButton);
+            row.append(actionsCell);
 
             tableBody.append(row);
         });
     }
 
+
     function editComic(comicId) {
         // Redirect to edit-comic.html with comicId as parameter
-        window.location.href = 'http://localhost:8080/edit-comic.html?id=' + comicId;
+        window.location.href = '/admin/edit-comic.html?id=' + comicId;
     }
 
     function deleteComic(comicId) {
@@ -138,7 +160,7 @@
 
     function redirectToCreateComic() {
         // Redirect to create-comic.html
-        window.location.href = 'http://localhost:8080/create-comic.html';
+        window.location.href = '/admin/create-comic.html';
     }
 </script>
 </body>

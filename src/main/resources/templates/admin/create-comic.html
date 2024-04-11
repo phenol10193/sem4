@@ -17,15 +17,13 @@
             <form id="create-comic-form" enctype="multipart/form-data">
                 <label for="title">Title:</label>
                 <input type="text" id="title" name="title" required><br><br>
-
+                <label for="coverImage">Cover Image:</label>
+                <input type="file" id="coverImage" name="file" accept="image/*" required><br><br>
                 <label for="description">Description:</label><br>
                 <textarea id="description" name="description" required></textarea><br><br>
 
                 <label for="status">Status:</label>
                 <input type="text" id="status" name="status" required><br><br>
-
-                <label for="coverImage">Cover Image:</label>
-                <input type="file" id="coverImage" name="coverImage" accept="image/*" required><br><br>
 
                 <label for="genres">Genres:</label><br>
                 <!-- Checkboxes for selecting genres -->
@@ -36,12 +34,61 @@
                 <button type="submit">Create Comic</button>
             </form>
 
-            <!-- Script to handle AJAX requests -->
-
             <script>
                 $(document).ready(function() {
                     loadGenres();
+
+                    $('#create-comic-form').submit(function(event) {
+                        event.preventDefault();
+
+                        var formData = new FormData(this);
+
+                        // Get selected genres
+                        var selectedGenres = [];
+                        $('#genres-checkboxes input:checked').each(function() {
+                            var genreId = parseInt($(this).val());
+                            if (!isNaN(genreId)) {
+                                selectedGenres.push(genreId);
+                            }
+                        });
+
+                        // Convert selected genres to JSON string
+                        formData.append('genreIds', JSON.stringify(selectedGenres));
+
+                        // Get cover image data
+                        var coverImageData = $('#coverImage')[0].files[0];
+                        if (coverImageData) {
+                            var reader = new FileReader();
+                            reader.readAsDataURL(coverImageData);
+                            reader.onload = function(e) {
+                                var coverImageString = e.target.result;
+
+                                // Attach coverImageString to formData
+                                formData.append('file', coverImageData);
+                                formData.append('coverImage', coverImageString);
+
+                                $.ajax({
+                                    url: 'http://localhost:8080/api/comics/create',
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function(data) {
+                                        alert('Comic created successfully!');
+                                        // Redirect or display success message
+                                    },
+                                    error: function(xhr, textStatus, errorThrown) {
+                                        console.log(xhr.responseText);
+                                        alert('Error creating comic. Please try again.');
+                                    }
+                                });
+                            }
+                        } else {
+                            console.log("No cover image selected.");
+                        }
+                    });
                 });
+
 
                 function loadGenres() {
                     $.ajax({
@@ -61,41 +108,13 @@
                     checkboxesDiv.empty();
 
                     genres.forEach(function(genre) {
-                        var checkbox = '<input type="checkbox" id="genre_' + genre.id + '" name="genres" value="' + genre.id + '">';
-                        checkbox += '<label for="genre_' + genre.id + '">' + genre.name + '</label><br>';
+                        var checkbox = '<input type="checkbox" id="genre_' + genre.genreId + '" name="genreIds" value="' + genre.genreId + '">';
+                        checkbox += '<label for="genre_' + genre.genreId + '">' + genre.name + '</label><br>';
 
                         checkboxesDiv.append(checkbox);
                     });
                 }
 
-                $('#create-comic-form').submit(function(event) {
-                    event.preventDefault();
-
-                    var formData = new FormData(this);
-
-                    // Get selected genres
-                    var selectedGenres = [];
-                    $('#genres-checkboxes input:checked').each(function() {
-                        selectedGenres.push($(this).val());
-                    });
-                    formData.append('selectedGenres', JSON.stringify(selectedGenres));
-
-                    $.ajax({
-                        url: 'http://localhost:8080/api/comics/create',
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(data) {
-                            alert('Comic created successfully!');
-                            // Redirect or display success message
-                        },
-                        error: function(xhr, textStatus, errorThrown) {
-                            console.log(xhr.responseText);
-                            alert('Error creating comic. Please try again.');
-                        }
-                    });
-                });
             </script>
         </div>
     </div>

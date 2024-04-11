@@ -64,4 +64,6 @@ public class ComicListItem {
     public void setTimeSinceLastUpdate(String timeSinceLastUpdate) {
         this.timeSinceLastUpdate = timeSinceLastUpdate;
     }
+
 }
+

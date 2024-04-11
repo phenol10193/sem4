@@ -1,15 +1,14 @@
-
 package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.dtos.ComicListItem;
-import com.example.sweet_peach_be.models.Chapter;
-import com.example.sweet_peach_be.models.Comic;
-import com.example.sweet_peach_be.models.UserReadingHistory;
-import com.example.sweet_peach_be.models.ViewCountStatistics;
+import com.example.sweet_peach_be.models.*;
 import com.example.sweet_peach_be.repositories.ChapterRepository;
 import com.example.sweet_peach_be.repositories.ComicRepository;
+import com.example.sweet_peach_be.repositories.GenreRepository;
 import com.example.sweet_peach_be.repositories.ViewCountStatisticsRepository;
 import com.example.sweet_peach_be.services.IComicService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +26,8 @@ public class ComicService implements IComicService {
     @Autowired
     private ChapterRepository chapterRepository;
     @Autowired
+    private GenreRepository genreRepository;
+    @Autowired
     private ViewCountStatisticsRepository viewCountStatisticsRepository;
     @Autowired
     private UserReadingHistoryService userReadingHistoryService;
@@ -40,11 +41,13 @@ public class ComicService implements IComicService {
     public Comic createComic(Comic comic) {
         return comicRepository.save(comic);
     }
+
     @Override
     public Comic updateComic(Long id, Comic comic) {
         comic.setId(id);
         return comicRepository.save(comic);
     }
+
     @Override
     public List<Chapter> getChaptersByComicId(Long id) {
         Optional<Comic> optionalComic = comicRepository.findById(id);
@@ -55,20 +58,23 @@ public class ComicService implements IComicService {
             return null; // Hoặc throw exception nếu cần
         }
     }
+
     @Override
     public void deleteComic(Long id) {
-        Comic comic = comicRepository.findById(id).orElse(null);
-        if (comic != null) {
+        Optional<Comic> optionalComic = comicRepository.findById(id);
+        optionalComic.ifPresent(comic -> {
             comic.setDeleted(true);
             comicRepository.save(comic);
-        }
+        });
     }
+
     @Override
     public List<Comic> getNewestComics(int limit) {
         List<Chapter> newestChapters = chapterRepository.findTopChaptersOrderByUpdatedAtDesc(limit);
         List<Long> comicIds = newestChapters.stream().map(Chapter::getComicId).distinct().collect(Collectors.toList());
         return comicRepository.findAllById(comicIds);
     }
+
     @Override
     public List<Comic> getHotComics(String period, int limit) {
         LocalDate startDate = switch (period) {
@@ -106,17 +112,20 @@ public class ComicService implements IComicService {
 
         return hotComicIds.stream().map(comicMap::get).collect(Collectors.toList());
     }
+
     @Override
     public List<Comic> getComicsByGenreId(Long genreId) {
         return comicRepository.findByIsDeletedFalseAndGenresId(genreId);
     }
+
     @Override
     public Comic getComicById(Long id) {
         return comicRepository.findById(id).orElse(null);
     }
+
     @Override
     public List<ComicListItem> getAllComicItems() {
-        List<Comic> allComic=getAllComics();
+        List<Comic> allComic = getAllComics();
         return allComic.stream()
                 .map(this::mapComicToItem)
                 .collect(Collectors.toList());
@@ -129,6 +138,7 @@ public class ComicService implements IComicService {
                 .map(this::mapComicToItem)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ComicListItem> getHotComicItems(String period, int limit) {
         List<Comic> hotComics = getHotComics(period, limit);
@@ -136,6 +146,7 @@ public class ComicService implements IComicService {
                 .map(this::mapComicToItem)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ComicListItem> getComicItemsByGenreId(Long genreId) {
         List<Comic> comicsByGenreId = getComicsByGenreId(genreId);
@@ -160,13 +171,55 @@ public class ComicService implements IComicService {
 
         return readComics;
     }
+
     @Override
     public List<ComicListItem> getComicHistory(Long userId) {
-        List<Comic> comicsHistory = getReadComicsByUserId( userId);
+        List<Comic> comicsHistory = getReadComicsByUserId(userId);
         return comicsHistory.stream()
                 .map(this::mapComicToItem)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public void addGenreToComic(Long comicId, Long genreId) {
+        Optional<Comic> optionalComic = comicRepository.findById(comicId);
+        Optional<Genre> optionalGenre = genreRepository.findById(genreId);
+
+        if (optionalComic.isPresent() && optionalGenre.isPresent()) {
+            Comic comic = optionalComic.get();
+            Genre genre = optionalGenre.get();
+
+            comic.getGenres().add(genre);
+            genre.getComics().add(comic);
+
+            comicRepository.save(comic);
+            genreRepository.save(genre);
+        } else {
+            throw new EntityNotFoundException("Comic or Genre not found");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeGenreFromComic(Long comicId, Long genreId) {
+        Optional<Comic> optionalComic = comicRepository.findById(comicId);
+        Optional<Genre> optionalGenre = genreRepository.findById(genreId);
+
+        if (optionalComic.isPresent() && optionalGenre.isPresent()) {
+            Comic comic = optionalComic.get();
+            Genre genre = optionalGenre.get();
+
+            comic.getGenres().remove(genre);
+            genre.getComics().remove(comic);
+
+            comicRepository.save(comic);
+            genreRepository.save(genre);
+        } else {
+            throw new EntityNotFoundException("Comic or Genre not found");
+        }
+    }
+
     private ComicListItem mapComicToItem(Comic comic) {
         ComicListItem item = new ComicListItem();
         item.setId(comic.getId());
@@ -193,5 +246,4 @@ public class ComicService implements IComicService {
             return days + "d";
         }
     }
-
 }

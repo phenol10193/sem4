@@ -30,4 +30,8 @@ public interface IComicService {
     List<Comic> getReadComicsByUserId(Long userId);
 
     List<ComicListItem> getComicHistory(Long userId);
+
+    void addGenreToComic(Long comicId, Long genreId);
+
+    void removeGenreFromComic(Long comicId, Long genreId);
 }

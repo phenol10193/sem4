@@ -1,60 +1,53 @@
-
-
 package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.models.Chapter;
 import com.example.sweet_peach_be.models.ChapterImage;
 import com.example.sweet_peach_be.repositories.ChapterImageRepository;
 import com.example.sweet_peach_be.repositories.ChapterRepository;
-import com.example.sweet_peach_be.services.IChapterImageService;
-import java.util.List;
-import java.util.Optional;
-
+import com.example.sweet_peach_be.services.UploadService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
-public class ChapterImageService implements IChapterImageService {
+public class ChapterImageService {
     @Autowired
-    private  ChapterImageRepository chapterImageRepository;
+    private ChapterImageRepository chapterImageRepository;
     @Autowired
-    private  ChapterRepository chapterRepository;
+    private ChapterRepository chapterRepository;
 
-    public ChapterImageService(ChapterRepository chapterRepository, ChapterImageRepository chapterImageRepository) {
-        this.chapterRepository = chapterRepository;
+    @Autowired
+    private UploadService uploadService;
+    @Autowired
+    public ChapterImageService(ChapterImageRepository chapterImageRepository) {
         this.chapterImageRepository = chapterImageRepository;
-    }
-    @Override
-    public ChapterImage getChapterImageById( Long chapterImageId){
-        return chapterImageRepository.findById(chapterImageId).orElse(null);
     }
 
     public List<ChapterImage> getChapterImagesByChapterId(Long chapterId) {
-        Optional<Chapter> optionalChapter = this.chapterRepository.findById(chapterId);
-        if (optionalChapter.isEmpty()) {
-            throw new IllegalArgumentException("Chapter not found with ID: " + chapterId);
-        } else {
-            return this.chapterImageRepository.findByChapterIdAndIsDeletedFalse(chapterId);
-        }
+        return chapterImageRepository.findByChapterId(chapterId);
     }
+    public ChapterImage addChapterImage(Long chapterId, MultipartFile file) throws IOException {
+        Chapter chapter = chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new EntityNotFoundException("Chapter not found with id: " + chapterId));
 
-    public ChapterImage createChapterImage(ChapterImage chapterImage) {
+        String imagePath = uploadService.storeImage(file);
+
+        ChapterImage chapterImage = new ChapterImage();
+        chapterImage.setChapter(chapter);
+        chapterImage.setImagePath(imagePath);
+
         return chapterImageRepository.save(chapterImage);
     }
 
-    public ChapterImage updateChapterImage(Long imageId, ChapterImage chapterImage) {
-        chapterImage.setId(imageId);
-        return chapterImageRepository.save(chapterImage);
-    }
+    public void deleteChapterImage(Long id) {
+        ChapterImage chapterImage = chapterImageRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Chapter Image not found with id: " + id));
 
-    public void deleteChapterImage(Long imageId) {
-        Optional<ChapterImage> optionalChapterImage = this.chapterImageRepository.findById(imageId);
-        if (optionalChapterImage.isPresent()) {
-            ChapterImage chapterImage = (ChapterImage)optionalChapterImage.get();
-            chapterImage.setDeleted(true);
-            this.chapterImageRepository.save(chapterImage);
-        } else {
-            throw new IllegalArgumentException("Image not found with ID:" + imageId);
-        }
+        chapterImageRepository.delete(chapterImage);
     }
 }

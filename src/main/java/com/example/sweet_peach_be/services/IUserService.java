@@ -12,7 +12,7 @@ public interface IUserService {
     User createUser(User user);
     User updateUser(Long userId, User userDetails);
     void deleteUser(Long userId);
-    User login(String email, String password);
+    String login(String email, String password);
 
     void registerUser(User user) throws MessagingException, jakarta.mail.MessagingException;
 

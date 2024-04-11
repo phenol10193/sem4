@@ -1,3 +1,4 @@
+
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 @Entity
@@ -8,20 +9,18 @@ public class UserReadingHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "comic_id")
-    private Comic comic;
+    @Column(name = "comic_id")
+    private Long comicId;
 
-    @ManyToOne
-    @JoinColumn(name = "chapter_id")
-    private Chapter chapter;
+    @Column(name = "chapter_id")
+    private Long chapterId;
 
-    private boolean isDeleted;
-    private boolean isRead;
+    @Column(name = "is_deleted")
+    private boolean deleted;
+
     public Long getId() {
         return id;
     }
@@ -30,43 +29,35 @@ public class UserReadingHistory {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Comic getComic() {
-        return comic;
+    public Long getComicId() {
+        return comicId;
     }
 
-    public void setComic(Comic comic) {
-        this.comic = comic;
+    public void setComicId(Long comicId) {
+        this.comicId = comicId;
     }
 
-    public Chapter getChapter() {
-        return chapter;
+    public Long getChapterId() {
+        return chapterId;
     }
 
-    public void setChapter(Chapter chapter) {
-        this.chapter = chapter;
+    public void setChapterId(Long chapterId) {
+        this.chapterId = chapterId;
     }
+
     public boolean isDeleted() {
-        return isDeleted;
+        return deleted;
     }
 
     public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+        this.deleted = deleted;
     }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setIsRead(boolean isRead) {
-        this.isRead = isRead;
-    }
-    // Getters and setters
 }

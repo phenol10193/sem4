@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(using = TopGenreDtoSerializer.class)
 
 public class TopGenreDto {
+
     private Genre genre;
     private long totalViewCount;
 
@@ -16,6 +17,9 @@ public class TopGenreDto {
 
     public Genre getGenre() {
         return genre;
+    }
+    public long getGenreId() {
+        return genre.getId(); // Sử dụng phương thức getName() của đối tượng Genre để lấy tên thể loại
     }
     public String getGenreName() {
         return genre.getName(); // Sử dụng phương thức getName() của đối tượng Genre để lấy tên thể loại

@@ -1,7 +1,9 @@
 package com.example.sweet_peach_be.controllers;
 
 import com.example.sweet_peach_be.dtos.LoginRequest;
+import com.example.sweet_peach_be.dtos.LoginResponse;
 import com.example.sweet_peach_be.dtos.UserRegistrationRequest;
+import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.User;
 import com.example.sweet_peach_be.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,24 +55,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody LoginRequest loginRequest) {
-        User user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
-        if (user != null) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> login( @RequestBody LoginRequest loginRequest) {
+        try {
+            String token = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
     }
 
+
     @PostMapping("/register")
-    public ModelAndView registerUser(@ModelAttribute("userRegistrationRequest") UserRegistrationRequest userRegistrationRequest) {
+    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
         try {
             userService.registerUser(userRegistrationRequest.getUser());
-            return new ModelAndView("redirect:/login"); // Chuyển hướng đến trang đăng nhập
+            return ResponseEntity.ok("User registered successfully. Please check your email to verify.");
         } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("register");
-            modelAndView.addObject("error", "Failed to register user: " + e.getMessage());
-            return modelAndView;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to register user: " + e.getMessage());
         }
     }
 

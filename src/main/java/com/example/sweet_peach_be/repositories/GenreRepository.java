@@ -18,6 +18,6 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
             "JOIN cg.comic c " +
             "GROUP BY cg.genre " +
             "ORDER BY SUM(c.viewCount) DESC")
-    List<TopGenreDto> findTop6GenresByViewCount();
+    List<TopGenreDto> findTop6GenresByViewCount(int limit);
 }
 

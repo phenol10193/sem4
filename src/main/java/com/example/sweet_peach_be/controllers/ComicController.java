@@ -1,9 +1,12 @@
 package com.example.sweet_peach_be.controllers;
 
 import com.example.sweet_peach_be.dtos.ComicListItem;
+import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.Chapter;
+import com.example.sweet_peach_be.models.Genre;
 import com.example.sweet_peach_be.services.IComicService;
 import com.example.sweet_peach_be.services.UploadService;
+import com.example.sweet_peach_be.services.impl.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,23 +14,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Set;
 
 @RestController
+
 @RequestMapping("/api/comics")
+@CrossOrigin
 public class ComicController {
     @Autowired
     private IComicService comicService;
+
+    @Autowired
+    private GenreService genreService;
+
     @Autowired
     private UploadService uploadService;
 
-
     @GetMapping("getalls")
-    public List<ComicListItem>getAllComicItems(){
+    public List<ComicListItem> getAllComicItems() {
         return comicService.getAllComicItems();
     }
+
     @GetMapping("/newest")
     public ResponseEntity<List<Comic>> getNewestComics(@RequestParam(name = "limit", defaultValue = "10") int limit) {
         List<Comic> newestComics = comicService.getNewestComics(limit);
@@ -41,10 +51,44 @@ public class ComicController {
         return new ResponseEntity<>(hotComics, HttpStatus.OK);
     }
 
-    @GetMapping("/genre/{genreId}")
-    public ResponseEntity<List<Comic>> getComicsByGenreId(@PathVariable Long genreId) {
-        List<Comic> comics = comicService.getComicsByGenreId(genreId);
-        return new ResponseEntity<>(comics, HttpStatus.OK);
+    @PostMapping("/{comicId}/genres/{genreId}")
+    public ResponseEntity<String> addGenreToComic(@PathVariable Long comicId, @PathVariable Long genreId) {
+        Comic comic = comicService.getComicById(comicId);
+        if (comic == null) {
+            return new ResponseEntity<>("Comic not found", HttpStatus.NOT_FOUND);
+        }
+
+        Optional<Genre> genre = genreService.getGenreById(genreId);
+        if (!genre.isPresent()) {
+            return new ResponseEntity<>("Genre not found", HttpStatus.NOT_FOUND);
+        }
+
+        comic.addGenre(genre.get());
+        comicService.createComic(comic);
+
+        return new ResponseEntity<>("Genre added to Comic successfully", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{comicId}/genres/{genreId}")
+    public ResponseEntity<String> deleteGenreFromComic(@PathVariable Long comicId, @PathVariable Long genreId) {
+        Comic comic = comicService.getComicById(comicId);
+        if (comic == null) {
+            return new ResponseEntity<>("Comic not found", HttpStatus.NOT_FOUND);
+        }
+
+        Optional<Genre> genre = genreService.getGenreById(genreId);
+        if (!genre.isPresent()) {
+            return new ResponseEntity<>("Genre not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (!comic.getGenres().contains(genre.get())) {
+            return new ResponseEntity<>("Genre is not associated with this Comic", HttpStatus.BAD_REQUEST);
+        }
+
+        comic.removeGenre(genre.get());
+        comicService.createComic(comic);
+
+        return new ResponseEntity<>("Genre removed from Comic successfully", HttpStatus.OK);
     }
 
     @GetMapping
@@ -68,10 +112,11 @@ public class ComicController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Comic> createComic(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("title") String title,
+    public ResponseEntity<Comic> createComic(@RequestParam("title") String title,
+                                             @RequestParam("file") MultipartFile file,
                                              @RequestParam("description") String description,
-                                             @RequestParam("status") String status) {
+                                             @RequestParam("status") String status,
+                                             @RequestParam("genres") List<Long> genreIds) {
         try {
             // Lưu ảnh và nhận đường dẫn
             String coverImage = uploadService.storeImage(file);
@@ -82,6 +127,10 @@ public class ComicController {
             comic.setDescription(description);
             comic.setStatus(status);
             comic.setCoverImage(coverImage);
+
+            // Gán danh sách ID thể loại cho Comic
+            comic.setGenres(genreIds);
+
             Comic createdComic = comicService.createComic(comic);
 
             return new ResponseEntity<>(createdComic, HttpStatus.CREATED);
@@ -140,5 +189,6 @@ public class ComicController {
     @GetMapping("/genre1/{genreId}")
     public List<ComicListItem> getComicsByGenreIdv1(@RequestParam Long genreId) {
         return comicService.getComicItemsByGenreId(genreId);
+
     }
 }

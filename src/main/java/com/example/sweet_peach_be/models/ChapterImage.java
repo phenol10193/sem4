@@ -1,11 +1,13 @@
 package com.example.sweet_peach_be.models;
+
 import jakarta.persistence.*;
+
 @Entity
 @Table(name = "chapter_images")
 public class ChapterImage {
     @Id
-    @Column(name = "chapter_image_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chapter_image_id")
     private Long id;
 
     @ManyToOne
@@ -23,9 +25,7 @@ public class ChapterImage {
         this.id = id;
     }
 
-    public Chapter getChapter() {
-        return chapter;
-    }
+
 
     public void setChapter(Chapter chapter) {
         this.chapter = chapter;
@@ -38,12 +38,10 @@ public class ChapterImage {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
-    public boolean isDeleted() {
-        return isDeleted;
-    }
+
+
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
     }
-    // Getters and setters
 }

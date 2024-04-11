@@ -1,24 +1,37 @@
-
 package com.example.sweet_peach_be.models;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "genres")
 public class Genre {
     @Id
+    @JsonIgnore
     @Column(name = "genre_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
+
     @Column(name = "is_deleted")
     private boolean isDeleted;
+
     @ManyToMany(mappedBy = "genres")
-    private Set<Comic> comics = new HashSet<>();
+    private List<Comic> comics = new ArrayList<>();
+
+    // Constructors, Getters, and Setters...
+
+    public List<Comic> getComics() {
+        return comics;
+    }
+
+    public void setComics(List<Comic> comics) {
+        this.comics = comics;
+    }
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
@@ -38,5 +51,9 @@ public class Genre {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
     }
 }

@@ -1,8 +1,8 @@
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/sweet_peach?useSSL=false
     username: root
-
   mail:
     host: info@trial-z3m5jgrq89mldpyo.mlsender.net
     port: 587
@@ -14,6 +14,9 @@ spring:
           auth: true
           starttls:
             enable: true
-  server:
-    port: 8080
-    address: 192.168.0.102
+server:
+  address: localhost
+  port: 8080
+jwt:
+  secret: mySecretKey
+  expiration: 2592000000
