@@ -31,7 +31,6 @@
             </ul>
         );
     }
-
     function Comics() {
         const [comics, setComics] = React.useState([]);
         const [genresMap, setGenresMap] = React.useState({});
@@ -130,7 +129,7 @@
                     {comics.map(comic => (
                         <tr key={comic.id}>
                             <td>
-                                <img src={comic.coverImage} width="100" height="100" alt="Comic Cover Image" />
+                                <img src={`/uploads/${comic.coverImage}`} width="100" height="100" alt="Comic Cover Image" />
                             </td>
                             <td>{comic.title}</td>
                             <td>{comic.description}</td>

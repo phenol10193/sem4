@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreService implements IGenreService {
@@ -22,7 +23,11 @@ public class GenreService implements IGenreService {
 
     }
     public List<Genre> getAllGenres() {
-        return genreRepository.findByIsDeletedFalse();
+        List<Genre> allGenres = genreRepository.findAll();
+        return allGenres.stream()
+                .filter(genre -> !genre.isDeleted())
+                .collect(Collectors.toList());
+    
     }
 
     public Optional<Genre> getGenreById(Long id) {

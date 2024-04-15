@@ -10,7 +10,6 @@ import java.util.List;
 @Table(name = "genres")
 public class Genre {
     @Id
-    @JsonIgnore
     @Column(name = "genre_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

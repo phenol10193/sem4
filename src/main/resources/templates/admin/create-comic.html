@@ -58,7 +58,12 @@
             formData.append('title', event.target.elements.title.value);
             formData.append('description', event.target.elements.description.value);
             formData.append('status', event.target.elements.status.value);
-            formData.append('genres', JSON.stringify(selectedGenres));
+
+            // Gửi danh sách genre IDs trực tiếp, không cần JSON.stringify
+            selectedGenres.forEach(genreId => {
+                formData.append('genres', genreId);
+            });
+
             formData.append('file', event.target.elements.file.files[0]);
 
             const createComicUrl = 'http://localhost:8080/api/comics/create';
@@ -74,11 +79,14 @@
                 }
 
                 alert('Comic created successfully!');
-                console.log('Comic created successfully!');
+
+                // Chuyển hướng sau khi tạo truyện thành công
+                window.location.href = 'comics.html';
             } catch (error) {
                 console.error('Error creating comic:', error);
             }
         };
+
 
         return (
             <div className="container">
