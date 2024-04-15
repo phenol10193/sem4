@@ -26,12 +26,12 @@ public class Comment {
     private String content;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
     public Comment() {
-        this.createdAt = new Date(); // Set createdAt to the current date and time when Comment is instantiated
+        this.createdAt = LocalDateTime.now();
     }
     public Long getId() {
         return id;
@@ -69,18 +69,20 @@ public class Comment {
         return content;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public void setContent(String content) {
         this.content = content;
     }
 
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;

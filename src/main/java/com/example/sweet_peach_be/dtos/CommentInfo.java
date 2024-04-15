@@ -1,5 +1,6 @@
 package com.example.sweet_peach_be.dtos;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class CommentInfo {
@@ -9,7 +10,7 @@ public class CommentInfo {
     private Long comicId;
     private Long chapterId;
     private String content;
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     public Long getUserId() {
         return userId;
@@ -59,11 +60,11 @@ public class CommentInfo {
         this.content = content;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }
