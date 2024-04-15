@@ -35,15 +35,15 @@ public class Comic {
             joinColumns = @JoinColumn(name = "comic_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     @JsonIgnore
+
     private Set<Genre> genres = new HashSet<>();
 
-    // Constructors, Getters, and Setters...
-
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChapterImage> chapterImages = new ArrayList<>();
     public void addGenre(Genre genre) {
         genres.add(genre);
         genre.getComics().add(this);
     }
-
     public void removeGenre(Genre genre) {
         genres.remove(genre);
         genre.getComics().remove(this);
@@ -120,7 +120,9 @@ public class Comic {
     public void setStatus(String status) {
         this.status = status;
     }
-
+    public List<ChapterImage> getChapterImages() {
+        return chapterImages;
+    }
     public boolean isDeleted() {
         return isDeleted;
     }

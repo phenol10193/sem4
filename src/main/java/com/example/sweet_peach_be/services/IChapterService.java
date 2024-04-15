@@ -11,4 +11,5 @@ public interface IChapterService {
     void deleteChapter(Long id);
     List<Chapter>getChaptersByComicId(Long comicId);
     Chapter incrementViewCount(Long id);
+
 }

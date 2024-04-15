@@ -2,6 +2,7 @@ package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.dtos.TopGenreDto;
 import com.example.sweet_peach_be.models.Genre;
+import com.example.sweet_peach_be.repositories.CommentRepository;
 import com.example.sweet_peach_be.repositories.GenreRepository;
 import com.example.sweet_peach_be.services.IGenreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,11 @@ public class GenreService implements IGenreService {
 
     @Autowired
     private GenreRepository genreRepository;
+    @Autowired
+    public GenreService(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
 
+    }
     public List<Genre> getAllGenres() {
         return genreRepository.findByIsDeletedFalse();
     }

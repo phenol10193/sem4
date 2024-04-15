@@ -5,7 +5,6 @@
     <title>Chapter Images</title>
     <!-- Add any necessary CSS stylesheets -->
     <style>
-
         .chapter-images {
             display: flex;
             justify-content: center;
@@ -45,16 +44,18 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <!-- Your JavaScript file where you define the ChapterImages component -->
-
-
 <script type="text/babel">
-    function ChapterImages({ chapterId }) {
+    function ChapterImages({comicId, chapterId }) {
         const [chapterImages, setChapterImages] = React.useState([]);
+
+
+
+
 
         React.useEffect(() => {
             async function fetchChapterImages() {
                 try {
-                    const response = await fetch(`http://localhost:8080/api/chapterImages/chapter/${chapterId}`);
+                    const response = await fetch(`http://localhost:8080/api/chapterImages/comic/${comicId}/chapter/${chapterId}`);
                     if (!response.ok) {
                         throw new Error('Failed to fetch chapter images');
                     }
@@ -70,29 +71,48 @@
             }
 
             fetchChapterImages();
-        }, [chapterId]);
+        }, [comicId, chapterId]);
 
         if (chapterImages.length === 0) {
             return <p>Loading chapter images...</p>;
         }
+
+        const isLastChapter = parseInt(chapterId, 10) === totalChapters;
+        const isFirstChapter = parseInt(chapterId, 10) === 1;
+
         const goToPreviousChapter = () => {
-            // Go to previous chapter by decreasing chapterId
             const newChapterId = parseInt(chapterId, 10) - 1;
-            window.location.href = `?chapterId=${newChapterId}`;
+            if (newChapterId >= 1) {
+                window.location.href = `?comicId=${comicId}&chapterId=${newChapterId}`;
+            }
         };
 
         const goToNextChapter = () => {
-            // Go to next chapter by increasing chapterId
             const newChapterId = parseInt(chapterId, 10) + 1;
-            window.location.href = `?chapterId=${newChapterId}`;
+            if (newChapterId <= totalChapters) {
+                window.location.href = `?comicId=${comicId}&chapterId=${newChapterId}`;
+            } else {
+                if (isLastChapter) {
+                    // Nếu đây là chương cuối cùng của comic có cùng comicId
+                    console.log("Đã hết chương!");
+                    alert("Đã hết chương!");
+                } else {
+                    console.log("No next chapter available for this comic");
+                }
+            }
         };
+
         return (
             <div className="chapter-images">
                 <div className="chapter-image-container">
                     <h2>Chapter Images</h2>
                     <div className="chapter-navigation">
-                        <button onClick={goToPreviousChapter}>Previous Chapter</button>
-                        <button onClick={goToNextChapter}>Next Chapter</button>
+                        {!isFirstChapter && (
+                            <button onClick={goToPreviousChapter}>Previous Chapter</button>
+                        )}
+                        {!isLastChapter && (
+                            <button onClick={goToNextChapter}>Next Chapter</button>
+                        )}
                     </div>
                     {chapterImages.map((image, index) => (
                         <img
@@ -107,12 +127,13 @@
         );
     }
 
-    // Get the chapterId from the URL
+    // Get the comicId and chapterId from the URL
     const urlParams = new URLSearchParams(window.location.search);
+    const comicId = urlParams.get('comicId');
     const chapterId = urlParams.get('chapterId');
 
-    // Render the ChapterImages component with the chapterId
-    ReactDOM.render(<ChapterImages chapterId={chapterId} />, document.getElementById('root'));
+    // Render the ChapterImages component with the comicId and chapterId
+    ReactDOM.render(<ChapterImages comicId={comicId} chapterId={chapterId} />, document.getElementById('root'));
 </script>
 </body>
 </html>

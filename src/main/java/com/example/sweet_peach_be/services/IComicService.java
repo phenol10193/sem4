@@ -35,6 +35,6 @@ public interface IComicService {
 
     void addGenreToComic(Long comicId, Long genreId);
     List<Genre> getGenresByComicId(Long comicId);
-
+    void insertComicWithGenres(Comic comic, List<Long> genreIds);
     void removeGenreFromComic(Long comicId, Long genreId);
 }

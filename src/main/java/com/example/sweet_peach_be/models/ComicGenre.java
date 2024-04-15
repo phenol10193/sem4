@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Table(name = "comic_genres")
 public class ComicGenre {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -17,4 +18,20 @@ public class ComicGenre {
     private Genre genre;
 
     // Getters and setters
+
+    public void setComic(Comic comic) {
+        this.comic = comic;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
+
+    public Comic getComic() {
+        return comic;
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
 }

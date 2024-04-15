@@ -22,7 +22,12 @@ public class ChapterImageController {
     public ChapterImageController(ChapterImageService chapterImageService) {
         this.chapterImageService = chapterImageService;
     }
-
+    @GetMapping("/comic/{comicId}/chapter/{chapterId}")
+    public ResponseEntity<List<ChapterImage>> getChapterImagesByComicIdAndChapterId(
+            @PathVariable Long comicId, @PathVariable Long chapterId) {
+        List<ChapterImage> chapterImages = chapterImageService.getChapterImagesByComicIdAndChapterId(comicId, chapterId);
+        return new ResponseEntity<>(chapterImages, HttpStatus.OK);
+    }
     @GetMapping("/chapter/{chapterId}")
     public ResponseEntity<List<ChapterImage>> getChapterImagesByChapterId(@PathVariable Long chapterId) {
         List<ChapterImage> chapterImages = chapterImageService.getChapterImagesByChapterId(chapterId);

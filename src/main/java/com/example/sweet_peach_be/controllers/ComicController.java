@@ -9,9 +9,7 @@ import com.example.sweet_peach_be.services.UploadService;
 import com.example.sweet_peach_be.services.impl.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-
 @RequestMapping("/api/comics")
 @CrossOrigin
 public class ComicController {
@@ -41,6 +38,7 @@ public class ComicController {
     public List<ComicListItem> getAllComicItems() {
         return comicService.getAllComicItems();
     }
+
     @GetMapping("/{comicId}/genres")
     public ResponseEntity<List<Genre>> getGenresByComicId(@PathVariable Long comicId) {
         List<Genre> genres = comicService.getGenresByComicId(comicId);
@@ -120,18 +118,20 @@ public class ComicController {
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping(value = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<?> createComic(@RequestParam("title") String title,
-                                          @RequestParam("file") MultipartFile file,
-                                          @RequestParam("description") String description,
-                                          @RequestParam("status") String status,
-                                          @RequestParam("genres") List<Long> genreIds) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createComicWithGenres(@RequestParam("title") String title,
+                                                   @RequestParam("file") MultipartFile file,
+                                                   @RequestParam("description") String description,
+                                                   @RequestParam("status") String status,
+                                                   @RequestParam("genres") List<Long> genreIds) {
+
         try {
+            // Logging thông tin request
             System.out.println("Title: " + title);
-            System.out.println("File: " + file.getOriginalFilename());
             System.out.println("Description: " + description);
             System.out.println("Status: " + status);
             System.out.println("Genre IDs: " + genreIds);
+
             // Save image and get the path
             String coverImage = uploadService.storeImage(file);
 
@@ -142,16 +142,16 @@ public class ComicController {
             comic.setStatus(status);
             comic.setCoverImage(coverImage);
 
-            // Get Genre list from genreIds and add them to comic-genre
-            List<Genre> genres = genreService.getGenresByIds(genreIds);
-            comic.setGenres(new HashSet<>(genres));
+            // Call the insertComicWithGenres method from ComicService
+            comicService.insertComicWithGenres(comic, genreIds);
 
-            Comic createdComic = comicService.createComic(comic);
-
-            return new ResponseEntity<>(createdComic, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Comic created successfully!");
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>("Error creating comic: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -163,28 +163,28 @@ public class ComicController {
                                              @RequestParam("status") String status,
                                              @RequestParam("genres") List<Long> genreIds) {
         try {
-            // Lưu ảnh và nhận đường dẫn
+            // Save image and get the path
             String coverImage = uploadService.storeImage(file);
 
-            // Lấy thông tin truyện cũ từ cơ sở dữ liệu
+            // Get the existing comic information from the database
             Comic existingComic = comicService.getComicById(id);
             if (existingComic == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            // Cập nhật thông tin truyện
+            // Update comic information
             existingComic.setTitle(title);
             existingComic.setDescription(description);
             existingComic.setStatus(status);
             existingComic.setCoverImage(coverImage);
 
-            // Lấy danh sách genres từ danh sách IDs
+            // Get the list of genres from the list of IDs
             List<Genre> updatedGenres = genreService.getGenresByIds(genreIds);
 
-            // Tạo một Set<Genre> mới từ danh sách genres
+            // Create a new Set<Genre> from the list of genres
             Set<Genre> genreSet = new HashSet<>(updatedGenres);
 
-            // Cập nhật danh sách genres cho truyện
+            // Update the list of genres for the comic
             existingComic.setGenres(genreSet);
             Comic updatedComic = comicService.updateComic(id, existingComic);
 
@@ -194,7 +194,6 @@ public class ComicController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteComic(@PathVariable Long id) {

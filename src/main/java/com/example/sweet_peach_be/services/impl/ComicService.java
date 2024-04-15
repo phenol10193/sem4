@@ -3,14 +3,12 @@ package com.example.sweet_peach_be.services.impl;
 import com.example.sweet_peach_be.dtos.ComicListItem;
 import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.*;
-import com.example.sweet_peach_be.repositories.ChapterRepository;
-import com.example.sweet_peach_be.repositories.ComicRepository;
-import com.example.sweet_peach_be.repositories.GenreRepository;
-import com.example.sweet_peach_be.repositories.ViewCountStatisticsRepository;
+import com.example.sweet_peach_be.repositories.*;
 import com.example.sweet_peach_be.services.IComicService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -32,6 +30,8 @@ public class ComicService implements IComicService {
     private ViewCountStatisticsRepository viewCountStatisticsRepository;
     @Autowired
     private UserReadingHistoryService userReadingHistoryService;
+    @Autowired
+    private ComicGenreRepository comicGenreRepository;
 
     @Override
     public List<Comic> getAllComics() {
@@ -41,6 +41,22 @@ public class ComicService implements IComicService {
     @Override
     public Comic createComic(Comic comic) {
         return comicRepository.save(comic);
+    }
+    @Transactional
+    @Override
+    public void insertComicWithGenres(Comic comic, List<Long> genreIds) {
+        // Lưu thông tin Comic
+        Comic savedComic = comicRepository.save(comic);
+
+        // Tạo và lưu thông tin ComicGenre
+        for (Long genreId : genreIds) {
+            Genre genre = genreRepository.findById(genreId)
+                    .orElseThrow(() -> new EntityNotFoundException("Genre not found with ID: " + genreId));
+            ComicGenre comicGenre = new ComicGenre();
+            comicGenre.setComic(savedComic); // Sử dụng đối tượng Comic đã được lưu
+            comicGenre.setGenre(genre); // Thiết lập đối tượng Genre cho ComicGenre
+            comicGenreRepository.save(comicGenre);
+        }
     }
 
     @Override
