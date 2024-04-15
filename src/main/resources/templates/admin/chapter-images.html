@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chapter Images</title>
+    <!-- Add any necessary CSS stylesheets -->
+    <style>
+
+        .chapter-images {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .chapter-image-container {
+            width: 66.666666667%; /* 2/3 of the screen width */
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .chapter-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        /* Button styles */
+        .chapter-navigation button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React library -->
+<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Your JavaScript file where you define the ChapterImages component -->
+
+
+<script type="text/babel">
+    function ChapterImages({ chapterId }) {
+        const [chapterImages, setChapterImages] = React.useState([]);
+
+        React.useEffect(() => {
+            async function fetchChapterImages() {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/chapterImages/chapter/${chapterId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch chapter images');
+                    }
+                    const data = await response.json();
+                    if (!data || !Array.isArray(data)) {
+                        throw new Error('Invalid data format for chapter images');
+                    }
+                    console.log("Received Chapter Images:", data);
+                    setChapterImages(data);
+                } catch (error) {
+                    console.error('Error fetching chapter images:', error);
+                }
+            }
+
+            fetchChapterImages();
+        }, [chapterId]);
+
+        if (chapterImages.length === 0) {
+            return <p>Loading chapter images...</p>;
+        }
+        const goToPreviousChapter = () => {
+            // Go to previous chapter by decreasing chapterId
+            const newChapterId = parseInt(chapterId, 10) - 1;
+            window.location.href = `?chapterId=${newChapterId}`;
+        };
+
+        const goToNextChapter = () => {
+            // Go to next chapter by increasing chapterId
+            const newChapterId = parseInt(chapterId, 10) + 1;
+            window.location.href = `?chapterId=${newChapterId}`;
+        };
+        return (
+            <div className="chapter-images">
+                <div className="chapter-image-container">
+                    <h2>Chapter Images</h2>
+                    <div className="chapter-navigation">
+                        <button onClick={goToPreviousChapter}>Previous Chapter</button>
+                        <button onClick={goToNextChapter}>Next Chapter</button>
+                    </div>
+                    {chapterImages.map((image, index) => (
+                        <img
+                            key={image?.id || index}
+                            src={image?.imagePath}
+                            alt={`Chapter Image ${image?.id || index}`}
+                            className="chapter-image"
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    // Get the chapterId from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chapterId = urlParams.get('chapterId');
+
+    // Render the ChapterImages component with the chapterId
+    ReactDOM.render(<ChapterImages chapterId={chapterId} />, document.getElementById('root'));
+</script>
+</body>
+</html>

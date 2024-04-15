@@ -1,13 +1,12 @@
 package com.example.sweet_peach_be.models;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 @Entity
 @Table(name = "comics")
 public class Comic {
@@ -18,7 +17,6 @@ public class Comic {
     private Long id;
 
     @OneToMany(mappedBy = "comic")
-
     private List<Chapter> chapters = new ArrayList<>();
 
     private String title;
@@ -36,7 +34,8 @@ public class Comic {
             name = "comic_genres",
             joinColumns = @JoinColumn(name = "comic_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private Set<Genre> genres;
+    @JsonIgnore
+    private Set<Genre> genres = new HashSet<>();
 
     // Constructors, Getters, and Setters...
 
@@ -136,18 +135,5 @@ public class Comic {
 
     public void setGenres(Set<Genre> genres) {
         this.genres = genres;
-    }
-
-    // Update setGenres to accept List<Long>
-    public void setGenres(List<Long> genreIds) {
-        // Convert genreIds to Set<Genre>
-        Set<Genre> genreSet = genreIds.stream()
-                .map(id -> {
-                    Genre genre = new Genre();
-                    genre.setId(id);
-                    return genre;
-                })
-                .collect(Collectors.toSet());
-        this.genres = genreSet;
     }
 }

@@ -1,118 +1,178 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Edit Comic</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Edit Comic</h1>
-    </div>
-    <div class="content">
-        <div class="form-container">
+<div id="root"></div>
 
-            <!-- Form to Edit Comic -->
-            <form id="edit-comic-form">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" required><br>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.6/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.6/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
 
-                <label for="description">Description:</label><br>
-                <textarea id="description" name="description" rows="4" required></textarea><br>
-
-                <label for="status">Status:</label>
-                <input type="text" id="status" name="status" required><br>
-
-                <label for="cover-image">Cover Image:</label>
-                <input type="file" id="cover-image" name="cover-image" accept="image/*"><br>
-
-                <label for="genres">Genres:</label><br>
-                <div id="genres-checkboxes">
-                    <!-- Genres checkboxes will be added here -->
-                </div><br>
-
-                <button type="submit">Update Comic</button>
-            </form>
-        </div>
-
-        </div>
-    </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Function to load comic details for editing
-        function loadComicDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const comicId = urlParams.get('id');
-
-            $.ajax({
-                url: 'http://localhost:8080/api/comics/' + comicId,
-                type: 'GET',
-                success: function(comic) {
-                    $('#title').val(comic.title);
-                    $('#description').val(comic.description);
-                    $('#status').val(comic.status);
-                    loadGenresCheckboxes(comic.genres);
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr.responseText);
-                }
-            });
+<script type="text/babel">
+    class EditComic extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                comicId: null,
+                title: '',
+                description: '',
+                status: '',
+                coverImage: null,
+                genres: [],
+                selectedGenres: []
+            };
         }
 
-        // Function to load genres checkboxes
-        function loadGenresCheckboxes(selectedGenres) {
-            $.ajax({
-                url: 'http://localhost:8080/api/genres',
-                type: 'GET',
-                success: function(genres) {
-                    var checkboxes = '';
-                    genres.forEach(function(genre) {
-                        var isChecked = selectedGenres.some(g => g.id === genre.id) ? 'checked' : '';
-                        checkboxes += '<input type="checkbox" id="genre-' + genre.id + '" name="genres" value="' + genre.id + '" ' + isChecked + '>';
-                        checkboxes += '<label for="genre-' + genre.id + '">' + genre.name + '</label><br>';
-                    });
-                    $('#genres-checkboxes').html(checkboxes);
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr.responseText);
-                }
-            });
+        componentDidMount() {
+            const queryParams = new URLSearchParams(window.location.search);
+            const comicId = queryParams.get('id');
+            this.setState({ comicId });
+            this.fetchComic(comicId);
+            this.fetchGenres();
         }
 
-        // Function to update comic
-        $('#edit-comic-form').submit(function(event) {
+        fetchComic = (comicId) => {
+            fetch(`http://localhost:8080/api/comics/${comicId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch comic');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const { title, description, status, coverImage, genres } = data;
+                    const selectedGenres = Array.isArray(genres) ? genres.map(genre => genre.id) : [];
+                    this.setState({ title, description, status, coverImage, selectedGenres });
+                })
+                .catch(error => {
+                    console.error('Error fetching comic:', error);
+                });
+        }
+
+        fetchGenres = () => {
+            fetch('http://localhost:8080/api/genres')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch genres');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    this.setState({ genres: data });
+                })
+                .catch(error => {
+                    console.error('Error fetching genres:', error);
+                });
+        }
+
+        handleInputChange = (event) => {
+            const { name, value } = event.target;
+            this.setState({ [name]: value });
+        }
+
+        handleCheckboxChange = (event) => {
+            const { value, checked } = event.target;
+            const { selectedGenres } = this.state;
+
+            let updatedGenres = [...selectedGenres];
+
+            if (checked) {
+                updatedGenres.push(parseInt(value));
+            } else {
+                updatedGenres = updatedGenres.filter(genreId => genreId !== parseInt(value));
+            }
+
+            this.setState({ selectedGenres: updatedGenres });
+        }
+
+        handleFileChange = (event) => {
+            const file = event.target.files[0];
+            this.setState({ coverImage: file });
+        }
+
+        handleFormSubmit = (event) => {
             event.preventDefault();
-            var formData = new FormData(this);
-            var selectedGenres = [];
-            $('#genres-checkboxes input:checked').each(function() {
-                selectedGenres.push($(this).val());
-            });
-            formData.append('genres', JSON.stringify(selectedGenres));
+            const { comicId, title, description, status, coverImage, selectedGenres } = this.state;
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const comicId = urlParams.get('id');
+            const genreIds = selectedGenres.map(id => parseInt(id));
 
-            $.ajax({
-                url: 'http://localhost:8080/api/comics/update/' + comicId,
-                type: 'PUT',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(updatedComic) {
-                    window.location.href = 'comic.html';
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr.responseText);
-                }
-            });
-        });
+            const formData = new FormData();
+            formData.append('file', coverImage);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('status', status);
+            formData.append('genres', JSON.stringify(genreIds));
 
-        // Load comic details when the page is ready
-        loadComicDetails();
-    });
+            fetch(`http://localhost:8080/api/comics/update/${comicId}`, {
+                method: 'PUT',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update comic');
+                    }
+                    alert('Comic updated successfully');
+                    // Redirect or do something after successful update
+                })
+                .catch(error => {
+                    console.error('Error updating comic:', error);
+                    alert('Error updating comic. Please try again.');
+                });
+        }
+
+        render() {
+            const { title, description, status, coverImage, genres, selectedGenres } = this.state;
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>Edit Comic</h1>
+                    </div>
+                    <div className="content">
+                        <div className="form-container">
+                            <form id="edit-comic-form" encType="multipart/form-data" method="POST" onSubmit={this.handleFormSubmit}>
+                                <label htmlFor="title">Title:</label>
+                                <input type="text" id="title" name="title" value={title} onChange={this.handleInputChange} required /><br /><br />
+                                <label htmlFor="coverImage">Cover Image:</label>
+                                <input type="file" id="coverImage" name="file" onChange={this.handleFileChange} required /><br />
+                                {coverImage && coverImage instanceof File && (
+                                    <div>
+                                        <img src={URL.createObjectURL(coverImage)} alt="Cover Preview" style={{ maxWidth: "200px", maxHeight: "200px" }} />
+                                        <br />
+                                    </div>
+                                )}
+                                <br />
+                                <label htmlFor="description">Description:</label><br />
+                                <textarea id="description" name="description" value={description} onChange={this.handleInputChange} required></textarea><br /><br />
+                                <label htmlFor="status">Status:</label>
+                                <input type="text" id="status" name="status" value={status} onChange={this.handleInputChange} required /><br /><br />
+                                <label htmlFor="genres">Genres:</label><br />
+                                {genres.map((genre, index) => (
+                                    <div key={index}>
+                                        <input
+                                            type="checkbox"
+                                            id={`genre-${genre.id}`}
+                                            name="selectedGenres"
+                                            value={genre.id}
+
+                                            onChange={this.handleCheckboxChange}
+                                        />
+                                        <label htmlFor={`genre-${genre.id}`}>{genre.name}</label>
+                                    </div>
+                                ))}
+                                <button type="submit">Update Comic</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    ReactDOM.render(<EditComic />, document.getElementById('root'));
 </script>
 </body>
 </html>

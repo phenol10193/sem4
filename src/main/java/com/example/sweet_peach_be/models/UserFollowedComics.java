@@ -1,7 +1,7 @@
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 @Entity
-@Table(name = "user_followedcomics")
+@Table(name = "user_followed_comics")
 public class UserFollowedComics {
     @Id
     @Column(name="user_followed_comics_id")

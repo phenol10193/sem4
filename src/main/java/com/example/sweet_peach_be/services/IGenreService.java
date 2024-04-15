@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IGenreService {
+    List<Genre> getGenresByIds(List<Long> ids);
     List<Genre> getAllGenres();
     Optional<Genre> getGenreById(Long id);
     Genre saveGenre(Genre genre);

@@ -1,6 +1,7 @@
 package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.dtos.ComicListItem;
+import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.*;
 import com.example.sweet_peach_be.repositories.ChapterRepository;
 import com.example.sweet_peach_be.repositories.ComicRepository;
@@ -58,7 +59,16 @@ public class ComicService implements IComicService {
             return null; // Hoặc throw exception nếu cần
         }
     }
-
+    @Override
+    public List<Genre> getGenresByComicId(Long comicId) {
+        Optional<Comic> optionalComic = comicRepository.findById(comicId);
+        if (optionalComic.isPresent()) {
+            Comic comic = optionalComic.get();
+            List<Genre> genreList = new ArrayList<>(comic.getGenres());
+            return genreList;
+        }
+        return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy truyện
+    }
     @Override
     public void deleteComic(Long id) {
         Optional<Comic> optionalComic = comicRepository.findById(id);

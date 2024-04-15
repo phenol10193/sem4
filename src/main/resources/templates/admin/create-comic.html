@@ -1,123 +1,108 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Create Comic</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Create Comic</h1>
-    </div>
-    <div class="content">
-        <div class="form-container">
-            <!-- Form to create a new comic -->
-            <form id="create-comic-form" enctype="multipart/form-data">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" required><br><br>
-                <label for="coverImage">Cover Image:</label>
-                <input type="file" id="coverImage" name="file" accept="image/*" required><br><br>
-                <label for="description">Description:</label><br>
-                <textarea id="description" name="description" required></textarea><br><br>
+<div id="root"></div>
+<!-- React library -->
+<script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/babel">
+    const CreateComic = () => {
+        const [genres, setGenres] = React.useState([]);
 
-                <label for="status">Status:</label>
-                <input type="text" id="status" name="status" required><br><br>
+        React.useEffect(() => {
+            const loadGenres = async () => {
+                try {
+                    const response = await fetch('http://localhost:8080/api/genres');
+                    if (!response.ok) {
+                        throw new Error('Failed to load genres');
+                    }
+                    const data = await response.json();
+                    setGenres(data);
+                } catch (error) {
+                    console.error('Error loading genres:', error);
+                }
+            };
 
-                <label for="genres">Genres:</label><br>
-                <!-- Checkboxes for selecting genres -->
-                <div id="genres-checkboxes">
-                    <!-- Data will be added here -->
-                </div>
 
-                <button type="submit">Create Comic</button>
-            </form>
+            loadGenres();
+        }, []);
 
-            <script>
-                $(document).ready(function() {
-                    loadGenres();
+        const handleSubmit = async (event) => {
+            event.preventDefault();
 
-                    $('#create-comic-form').submit(function(event) {
-                        event.preventDefault();
+            const formData = new FormData(event.target);
 
-                        var formData = new FormData(this);
+            // Convert selected genre IDs to an array and set the correct key in formData
+            const selectedGenres = Array.from(formData.getAll('genres'));
+            formData.delete('genres');
+            formData.append('genreIds', JSON.stringify(selectedGenres));
 
-                        // Get selected genres
-                        var selectedGenres = [];
-                        $('#genres-checkboxes input:checked').each(function() {
-                            var genreId = parseInt($(this).val());
-                            if (!isNaN(genreId)) {
-                                selectedGenres.push(genreId);
-                            }
-                        });
+            const createComicUrl = 'http://localhost:8080/api/comics/create';
 
-                        // Convert selected genres to JSON string
-                        formData.append('genreIds', JSON.stringify(selectedGenres));
-
-                        // Get cover image data
-                        var coverImageData = $('#coverImage')[0].files[0];
-                        if (coverImageData) {
-                            var reader = new FileReader();
-                            reader.readAsDataURL(coverImageData);
-                            reader.onload = function(e) {
-                                var coverImageString = e.target.result;
-
-                                // Attach coverImageString to formData
-                                formData.append('file', coverImageData);
-                                formData.append('coverImage', coverImageString);
-
-                                $.ajax({
-                                    url: 'http://localhost:8080/api/comics/create',
-                                    type: 'POST',
-                                    data: formData,
-                                    processData: false,
-                                    contentType: false,
-                                    success: function(data) {
-                                        alert('Comic created successfully!');
-                                        // Redirect or display success message
-                                    },
-                                    error: function(xhr, textStatus, errorThrown) {
-                                        console.log(xhr.responseText);
-                                        alert('Error creating comic. Please try again.');
-                                    }
-                                });
-                            }
-                        } else {
-                            console.log("No cover image selected.");
-                        }
-                    });
+            try {
+                const response = await fetch(createComicUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
                 });
 
 
-                function loadGenres() {
-                    $.ajax({
-                        url: 'http://localhost:8080/api/genres',
-                        type: 'GET',
-                        success: function(data) {
-                            displayGenresCheckboxes(data);
-                        },
-                        error: function(xhr, textStatus, errorThrown) {
-                            console.log(xhr.responseText);
-                        }
-                    });
+                if (!response.ok) {
+                    throw new Error('Failed to create comic');
                 }
 
-                function displayGenresCheckboxes(genres) {
-                    var checkboxesDiv = $('#genres-checkboxes');
-                    checkboxesDiv.empty();
+                console.log('Comic created successfully!');
+            } catch (error) {
+                console.error('Error creating comic:', error);
+            }
+        };
 
-                    genres.forEach(function(genre) {
-                        var checkbox = '<input type="checkbox" id="genre_' + genre.genreId + '" name="genreIds" value="' + genre.genreId + '">';
-                        checkbox += '<label for="genre_' + genre.genreId + '">' + genre.name + '</label><br>';
+        return (
+            <div className="container">
+                <div className="header">
+                    <h1>Create Comic</h1>
+                </div>
+                <div className="content">
+                    <div className="form-container">
+                        <form id="create-comic-form" encType="multipart/form-data" method = "POST" onSubmit={handleSubmit}>
+                            <label htmlFor="title">Title:</label>
+                            <input type="text" id="title" name="title" required /><br /><br />
+                            <label htmlFor="coverImage">Cover Image:</label>
+                            <input type="file" id="coverImage" name="file" accept="image/*" required /><br /><br />
+                            <img id="coverPreview" src="#" alt="Cover Preview" style={{ maxWidth: '200px', display: 'none' }} />
+                            <label htmlFor="description">Description:</label><br />
+                            <textarea id="description" name="description" required></textarea><br /><br />
+                            <label htmlFor="status">Status:</label>
+                            <input type="text" id="status" name="status" required /><br /><br />
+                            <label htmlFor="genres">Genres:</label><br />
+                            {genres.map((genre, index) => (
+                                <div key={index}>
+                                    <input type="checkbox" id={`genre-${genre.id}`} name="genres" value={genre.id} />
+                                    <label htmlFor={`genre-${genre.id}`}>{genre.name}</label>
+                                </div>
+                            ))}
 
-                        checkboxesDiv.append(checkbox);
-                    });
-                }
+                            <button type="submit">Create Comic</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
-            </script>
-        </div>
-    </div>
-</div>
+
+    ReactDOM.render(<CreateComic />, document.getElementById('root'));
+</script>
 </body>
 </html>

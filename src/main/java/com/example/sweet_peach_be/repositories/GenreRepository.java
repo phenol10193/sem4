@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByNameAndIsDeletedFalse(String name);
+    List<Genre> findByIdInAndIsDeletedFalse(List<Long> ids);
     Optional<Genre> findByIdAndIsDeletedFalse(Long id);
     List<Genre> findByIsDeletedFalse();
     @Query("SELECT NEW com.example.sweet_peach_be.dtos.TopGenreDto(cg.genre, SUM(c.viewCount)) " +

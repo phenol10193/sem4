@@ -23,7 +23,10 @@ public class GenreService implements IGenreService {
     public Optional<Genre> getGenreById(Long id) {
         return genreRepository.findByIdAndIsDeletedFalse(id);
     }
-
+    @Override
+    public List<Genre> getGenresByIds(List<Long> ids) {
+        return genreRepository.findByIdInAndIsDeletedFalse(ids);
+    }
     public Genre saveGenre(Genre genre) {
         Optional<Genre> existingGenre = genreRepository.findByNameAndIsDeletedFalse(genre.getName());
         return existingGenre.orElseGet(() -> genreRepository.save(genre));

@@ -4,6 +4,8 @@ package com.example.sweet_peach_be.services;
 import com.example.sweet_peach_be.dtos.ComicListItem;
 import com.example.sweet_peach_be.models.Chapter;
 import com.example.sweet_peach_be.models.Comic;
+import com.example.sweet_peach_be.models.Genre;
+
 import java.util.List;
 
 public interface IComicService {
@@ -32,6 +34,7 @@ public interface IComicService {
     List<ComicListItem> getComicHistory(Long userId);
 
     void addGenreToComic(Long comicId, Long genreId);
+    List<Genre> getGenresByComicId(Long comicId);
 
     void removeGenreFromComic(Long comicId, Long genreId);
 }

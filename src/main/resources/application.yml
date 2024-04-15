@@ -1,8 +1,23 @@
 
 spring:
+
+  main:
+    allow-bean-definition-overriding: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    enabled: true
+    mode: HTML
   datasource:
     url: jdbc:mysql://localhost:3306/sweet_peach?useSSL=false
     username: root
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+      enabled: true
+      file-size-threshold: 2KB
   mail:
     host: info@trial-z3m5jgrq89mldpyo.mlsender.net
     port: 587
