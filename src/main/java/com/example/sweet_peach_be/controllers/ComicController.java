@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -35,12 +36,6 @@ public class ComicController {
         return new ResponseEntity<>(newestComics, HttpStatus.OK);
     }
 
-    @GetMapping("/hot")
-    public ResponseEntity<List<Comic>> getHotComics(@RequestParam(name = "period") String period,
-                                                    @RequestParam(name = "limit", defaultValue = "6") int limit) {
-        List<Comic> hotComics = comicService.getHotComics(period, limit);
-        return new ResponseEntity<>(hotComics, HttpStatus.OK);
-    }
 
     @GetMapping("/genre/{genreId}")
     public ResponseEntity<List<Comic>> getComicsByGenreId(@PathVariable Long genreId) {
@@ -134,12 +129,27 @@ public class ComicController {
     }
 
     @GetMapping("/hot1")
-    public List<ComicListItem> getHotComicsv1(@RequestParam String period, @RequestParam int limit) {
-        return comicService.getHotComicItems(period, limit);
+    public List<ComicListItem> getHotComicsv1(@RequestParam String period, @RequestParam int limithot) {
+        return comicService.getHotComicItems(period, limithot);
     }
 
     @GetMapping("/genre1/{genreId}")
-    public List<ComicListItem> getComicsByGenreIdv1(@RequestParam Long genreId) {
+    public List<ComicListItem> getComicsByGenreIdv1(@PathVariable Long genreId) {
         return comicService.getComicItemsByGenreId(genreId);
     }
+    @GetMapping("/history/{userId}")
+    public List<ComicListItem> getComicHistory(@PathVariable Long userId) {
+        return comicService.getComicHistory(userId);
+    }
+
+    @GetMapping("/{userId}/followed-comics")
+    public List<ComicListItem> getFollowedComicsByUserIdItem(@PathVariable Long userId) {
+        return comicService.getFollowedComicsByUserIdItem(userId);
+    }
+    @PostMapping("/localstorage")
+    public ResponseEntity<List<ComicListItem>> getLocalStorageItems(@RequestBody List<Map<String, Long>> comicChapterList) {
+        List<ComicListItem> localStorageItems = comicService.getLocalStorageItem(comicChapterList);
+        return new ResponseEntity<>(localStorageItems, HttpStatus.OK);
+    }
+
 }

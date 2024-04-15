@@ -1,32 +1,38 @@
 package com.example.sweet_peach_be.models;
+
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Table(name = "comments")
 public class Comment {
     @Id
-    @Column(name = "comment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "comic_id")
-    private Comic comic;
+    @Column(name = "comic_id")
+    private Long comicId;
 
-    @ManyToOne
-    @JoinColumn(name = "chapter_id")
-    private Chapter chapter;
+    @Column(name = "chapter_id")
+    private Long chapterId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private Long userId;
 
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
-    private Date createdAt;
-    private boolean isDeleted;
 
+    @Column(name = "created_at")
+    private Date createdAt;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+    public Comment() {
+        this.createdAt = new Date(); // Set createdAt to the current date and time when Comment is instantiated
+    }
     public Long getId() {
         return id;
     }
@@ -35,28 +41,28 @@ public class Comment {
         this.id = id;
     }
 
-    public Comic getComic() {
-        return comic;
+    public Long getComicId() {
+        return comicId;
     }
 
-    public void setComic(Comic comic) {
-        this.comic = comic;
+    public void setComicId(Long comicId) {
+        this.comicId = comicId;
     }
 
-    public Chapter getChapter() {
-        return chapter;
+    public Long getChapterId() {
+        return chapterId;
     }
 
-    public void setChapter(Chapter chapter) {
-        this.chapter = chapter;
+    public void setChapterId(Long chapterId) {
+        this.chapterId = chapterId;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getContent() {
@@ -67,6 +73,7 @@ public class Comment {
         this.content = content;
     }
 
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -75,5 +82,7 @@ public class Comment {
         this.createdAt = createdAt;
     }
 
-    // Getters and setters
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 }

@@ -14,11 +14,12 @@ public class ChapterService implements IChapterService {
 
     private final ChapterRepository chapterRepository;
     private final ComicRepository comicRepository;
-
+    private final ViewCountService viewCountService;
     @Autowired
-    public ChapterService(ChapterRepository chapterRepository, ComicRepository comicRepository) {
+    public ChapterService(ChapterRepository chapterRepository, ComicRepository comicRepository,ViewCountService viewCountService) {
         this.chapterRepository = chapterRepository;
         this.comicRepository = comicRepository;
+        this.viewCountService= viewCountService;
     }
 
     public List<Chapter> getAllChapters() {
@@ -65,6 +66,8 @@ public class ChapterService implements IChapterService {
             if (comic != null) {
                 comic.setViewCount(comic.getViewCount() + 1);
                 comicRepository.save(comic);
+
+                viewCountService.updateComicViewCount(comic);
             }
 
             return chapter;

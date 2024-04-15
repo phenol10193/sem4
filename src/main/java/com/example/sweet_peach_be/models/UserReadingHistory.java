@@ -1,5 +1,8 @@
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "user_reading_history")
 public class UserReadingHistory {
@@ -17,6 +20,16 @@ public class UserReadingHistory {
     @Column(name = "chapter_id")
     private Long chapterId;
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
     @Column(name = "is_deleted")
     private boolean deleted;
 
@@ -50,10 +63,6 @@ public class UserReadingHistory {
 
     public void setChapterId(Long chapterId) {
         this.chapterId = chapterId;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
     }
 
     public void setDeleted(boolean deleted) {

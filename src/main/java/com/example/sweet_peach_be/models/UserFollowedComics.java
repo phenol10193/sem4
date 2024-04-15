@@ -1,23 +1,14 @@
 package com.example.sweet_peach_be.models;
 import jakarta.persistence.*;
 @Entity
-@Table(name = "user_followedcomics")
+@Table(name = "user_followed_comics")
 public class UserFollowedComics {
     @Id
-    @Column(name="user_followed_comics_id")
+    @Column(name = "user_followed_comics_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "comic_id")
-    private Comic comic;
-
-    private boolean isDeleted;
-
+    private Long userId;
+    private Long comicId;
     public Long getId() {
         return id;
     }
@@ -26,21 +17,28 @@ public class UserFollowedComics {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Comic getComic() {
-        return comic;
+
+    public Long getComicId() {
+        return comicId;
     }
 
-    public void setComic(Comic comic) {
-        this.comic = comic;
+    public void setComicId(Long comicId) {
+        this.comicId = comicId;
     }
 
-    // Getters and setters
+    private boolean isDeleted;
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+
 }

@@ -1,18 +1,25 @@
 package com.example.sweet_peach_be.controllers;
 
 import com.example.sweet_peach_be.dtos.LoginRequest;
-import com.example.sweet_peach_be.dtos.LoginResponse;
-import com.example.sweet_peach_be.dtos.UserRegistrationRequest;
 import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
+import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.User;
 import com.example.sweet_peach_be.services.IUserService;
+import com.example.sweet_peach_be.services.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -21,7 +28,8 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
-
+    @Autowired
+    private UploadService uploadService;
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -53,35 +61,67 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PutMapping("/change-avatar")
+    public ResponseEntity<String> changeAvatar(@RequestParam("userId") Long userId, @RequestParam("file") MultipartFile file) {
+
+            try {
+                String newAvatarPath = uploadService.storeImage(file);
+                userService.changeAvatar(userId, newAvatarPath);
+                return ResponseEntity.ok("Avatar changed successfully");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+    }
     @PostMapping("/login")
-    public ResponseEntity<?> login( @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             String token = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok(token);
+            String userId = userService.getUserId(loginRequest.getEmail()); // Lấy ID của người dùng
+            // Trả về token và userId
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("userId", userId);
+            return ResponseEntity.ok(response);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
     }
 
 
+
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
-        try {
-            userService.registerUser(userRegistrationRequest.getUser());
-            return ResponseEntity.ok("User registered successfully. Please check your email to verify.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to register user: " + e.getMessage());
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String result = userService.resetPassword(email);
+        return ResponseEntity.ok(result);
+    }
+    @PutMapping("/{userId}/change-password")
+    public ResponseEntity<String> changePassword(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> passwordData) {
+
+        String oldPassword = passwordData.get("oldPassword");
+        String newPassword = passwordData.get("newPassword");
+
+        boolean success = userService.changePassword(userId, oldPassword, newPassword);
+        if (success) {
+            return ResponseEntity.ok("Mật khẩu đã được thay đổi thành công");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sai mật khẩu hoặc userId không tồn tại");
         }
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-        try {
-            userService.verifyEmail(token);
-            return ResponseEntity.ok("Email verified successfully. You can now log in.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to verify email: " + e.getMessage());
-        }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        userService.updatePassword(email, newPassword);
+        return ResponseEntity.ok("Password updated successfully!");
     }
 }
 

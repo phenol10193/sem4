@@ -15,6 +15,9 @@ public class User {
     private String password;
     private boolean isDeleted;
 
+    @Column(name = "avatar_path")
+    private String avatarPath;
+
     public Long getId() {
         return id;
     }
@@ -47,11 +50,15 @@ public class User {
         this.password = password;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public String getAvatarPath() {
+        return avatarPath;
+    }
+
+    public void setAvatarPath(String avatarPath) {
+        this.avatarPath = avatarPath;
     }
 }
