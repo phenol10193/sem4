@@ -124,8 +124,9 @@ public class ComicController {
     }
 
     @GetMapping("/newest1")
-    public List<ComicListItem> getNewestComicsv1(@RequestParam int limit) {
-        return comicService.getNewestComicItems(limit);
+    public List<ComicListItem> getNewestComicsv1(@RequestParam int limitnew) {
+        System.out.println("ok:"+limitnew);
+        return comicService.getNewestComicItems(limitnew);
     }
 
     @GetMapping("/hot1")

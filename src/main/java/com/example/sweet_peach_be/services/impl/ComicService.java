@@ -70,7 +70,7 @@ public class ComicService implements IComicService {
     @Override
     public List<Comic> getNewestComics(int limit) {
         List<Chapter> newestChapters = chapterRepository.findTopChaptersOrderByUpdatedAtDesc(limit);
-        List<Long> comicIds = newestChapters.stream().map(Chapter::getComicId).distinct().collect(Collectors.toList());
+        List<Long> comicIds = newestChapters.stream().map(Chapter::getComicId).limit(limit).distinct().collect(Collectors.toList());
         return comicRepository.findAllById(comicIds);
     }
     @Override

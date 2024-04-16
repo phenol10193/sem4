@@ -33,7 +33,6 @@ public class CommentController {
     }
     @GetMapping("/chapter/{chapterId}")
     public List<CommentInfo> getCommentInfoByChapterId(@PathVariable Long chapterId) {
-        // Lấy ra tất cả thông tin comment dựa trên chapterId
         return commentService.getAllCommentInfoByChapterId(chapterId);
     }
 }

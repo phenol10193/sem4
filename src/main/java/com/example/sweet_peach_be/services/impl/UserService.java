@@ -98,14 +98,13 @@ public class UserService implements IUserService {
         }
     }
 
-    @Value("${server.address}")
-    private String serverAddress;
+
 
     @Value("${server.port}")
     private String serverPort;
     @Override
     public String resetPassword(String email) {
-        String url="http://"+serverAddress+":"+serverPort+"/reset-password?email=";
+        String url="http://localhost:"+serverPort+"/reset-password?email=";
         User user = userRepository.findByEmail(email);
         if (user == null) {
             return "Email chưa được đăng ký.";
