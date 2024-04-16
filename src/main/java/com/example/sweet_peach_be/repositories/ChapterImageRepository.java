@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ChapterImageRepository extends JpaRepository<ChapterImage, Long> {
-    List<ChapterImage> findByComicIdAndChapterId( Long comicId, Long chapterId);
+
     List<ChapterImage> findByChapterId(Long chapterId);
 }

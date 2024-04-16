@@ -82,6 +82,11 @@ public class ComicService implements IComicService {
         }
     }
 
+    public String getComicTitle(Long comicId) {
+        Comic comic = comicRepository.findById(comicId)
+                .orElseThrow(() -> new EntityNotFoundException("Comic not found with id: " + comicId));
+        return comic.getTitle();
+    }
     @Override
     public Comic updateComic(Long id, Comic comic) {
         comic.setId(id);

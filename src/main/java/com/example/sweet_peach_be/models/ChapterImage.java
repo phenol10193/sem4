@@ -13,9 +13,6 @@ public class ChapterImage {
     @ManyToOne
     @JoinColumn(name = "chapter_id")
     private Chapter chapter;
-    @ManyToOne
-    @JoinColumn(name = "comic_id")
-    private Comic comic;
 
     private String imagePath;
     private boolean isDeleted;

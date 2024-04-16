@@ -26,7 +26,8 @@ public class Chapter {
     private int chapterNumber;
     private int viewCount;
     private boolean isDeleted;
-    private Timestamp updatedAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChapterImage> chapterImages = new ArrayList<>();
@@ -47,10 +48,10 @@ public class Chapter {
     }
 
     public LocalDateTime getUpdatedAt() {
-        return updatedAt.toLocalDateTime();
+        return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -62,9 +63,9 @@ public class Chapter {
         return comic.getTitle();
     }
 
-//    public void setComic(Comic comic) {
-//        this.comic = comic;
-//    }
+    public void setComic(Comic comic) {
+        this.comic = comic;
+    }
 
     public Long getComicId() {
         return comicId;
@@ -97,4 +98,10 @@ public class Chapter {
     public void setComicId(Long comicId) {
         this.comicId = comicId;
     }
+
+
+    public void setChapterImages(List<ChapterImage> chapterImages) {
+        this.chapterImages = chapterImages;
+    }
+
 }

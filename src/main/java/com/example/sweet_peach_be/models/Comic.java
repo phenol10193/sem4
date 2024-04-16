@@ -38,8 +38,7 @@ public class Comic {
 
     private Set<Genre> genres = new HashSet<>();
 
-    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChapterImage> chapterImages = new ArrayList<>();
+
     public void addGenre(Genre genre) {
         genres.add(genre);
         genre.getComics().add(this);
@@ -120,9 +119,7 @@ public class Comic {
     public void setStatus(String status) {
         this.status = status;
     }
-    public List<ChapterImage> getChapterImages() {
-        return chapterImages;
-    }
+
     public boolean isDeleted() {
         return isDeleted;
     }

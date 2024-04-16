@@ -31,9 +31,7 @@ public class ChapterImageService {
     public List<ChapterImage> getChapterImagesByChapterId(Long chapterId) {
         return chapterImageRepository.findByChapterId(chapterId);
     }
-    public List<ChapterImage> getChapterImagesByComicIdAndChapterId(Long comicId, Long chapterId) {
-        return chapterImageRepository.findByComicIdAndChapterId(comicId, chapterId);
-    }
+
     public ChapterImage addChapterImage(Long chapterId, MultipartFile file) throws IOException {
         Chapter chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new EntityNotFoundException("Chapter not found with id: " + chapterId));
