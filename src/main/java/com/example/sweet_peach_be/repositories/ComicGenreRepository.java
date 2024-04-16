@@ -9,5 +9,6 @@ import java.util.List;
 public interface ComicGenreRepository extends JpaRepository<ComicGenre, Long> {
     List<ComicGenre> findByComicId(Long comicId);
     List<ComicGenre> findByGenreId(Long genreId);
+    void deleteComicGenresByComicId(Long comicId);
     // Các phương thức tùy chỉnh khác nếu cần
 }

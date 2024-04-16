@@ -7,6 +7,7 @@
 </head>
 <body>
 <div id="root"></div>
+<div id="error-message" style="color: red; font-weight: bold;"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.6/umd/react.development.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.6/umd/react-dom.development.js"></script>
@@ -30,6 +31,7 @@
         componentDidMount() {
             const queryParams = new URLSearchParams(window.location.search);
             const comicId = queryParams.get('id');
+            console.log('Comic ID:', comicId); // In ra để kiểm tra giá trị comicId
             this.setState({ comicId });
             this.fetchComic(comicId);
             this.fetchGenres();
@@ -50,6 +52,8 @@
                 })
                 .catch(error => {
                     console.error('Error fetching comic:', error);
+                    // Hiển thị thông báo lỗi khi bộ truyện không được tìm thấy
+                    document.getElementById('error-message').innerText = 'Comic not found. Please check the comic ID.';
                 });
         }
 
@@ -98,14 +102,12 @@
             event.preventDefault();
             const { comicId, title, description, status, coverImage, selectedGenres } = this.state;
 
-            const genreIds = selectedGenres.map(id => parseInt(id));
-
             const formData = new FormData();
             formData.append('file', coverImage);
             formData.append('title', title);
             formData.append('description', description);
             formData.append('status', status);
-            formData.append('genres', JSON.stringify(genreIds));
+            formData.append('genres', selectedGenres); // Chỉ cần truyền mảng selectedGenres
 
             fetch(`http://localhost:8080/api/comics/update/${comicId}`, {
                 method: 'PUT',
@@ -117,6 +119,9 @@
                     }
                     alert('Comic updated successfully');
                     // Redirect or do something after successful update
+
+                    // Chuyển hướng sau khi tạo truyện thành công
+                       window.location.href = 'comics.html';
                 })
                 .catch(error => {
                     console.error('Error updating comic:', error);
@@ -157,7 +162,7 @@
                                             id={`genre-${genre.id}`}
                                             name="selectedGenres"
                                             value={genre.id}
-
+                                            checked={selectedGenres.includes(genre.id)} // Kiểm tra xem genre có trong selectedGenres không
                                             onChange={this.handleCheckboxChange}
                                         />
                                         <label htmlFor={`genre-${genre.id}`}>{genre.name}</label>

@@ -5,6 +5,7 @@ import com.example.sweet_peach_be.dtos.ComicListItem;
 import com.example.sweet_peach_be.models.Chapter;
 import com.example.sweet_peach_be.models.Comic;
 import com.example.sweet_peach_be.models.Genre;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -12,6 +13,10 @@ public interface IComicService {
     List<Comic> getAllComics();
 
     Comic createComic(Comic comic);
+
+    @Transactional
+    void updateComicWithGenres(Long comicId, List<Long> newGenreIds);
+
     Comic updateComic(Long id, Comic comic);
 
     List<Chapter> getChaptersByComicId(Long id);

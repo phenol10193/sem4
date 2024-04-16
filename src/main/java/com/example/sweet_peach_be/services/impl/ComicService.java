@@ -1,14 +1,12 @@
 package com.example.sweet_peach_be.services.impl;
 
 import com.example.sweet_peach_be.dtos.ComicListItem;
-import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.*;
 import com.example.sweet_peach_be.repositories.*;
 import com.example.sweet_peach_be.services.IComicService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -56,6 +54,31 @@ public class ComicService implements IComicService {
             comicGenre.setComic(savedComic); // Sử dụng đối tượng Comic đã được lưu
             comicGenre.setGenre(genre); // Thiết lập đối tượng Genre cho ComicGenre
             comicGenreRepository.save(comicGenre);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void updateComicWithGenres(Long comicId, List<Long> newGenreIds) {
+        try {
+            // First, we find the comic by its id
+            Comic comic = comicRepository.findById(comicId)
+                    .orElseThrow(() -> new RuntimeException("Comic not found")); // Ném ngoại lệ nếu không tìm thấy bộ truyện với id tương ứng
+
+            // Then, we remove all existing genres for this comic
+            comicGenreRepository.deleteComicGenresByComicId(comicId);
+
+            // And finally, we add the new genres
+            for (Long genreId : newGenreIds) {
+                ComicGenre comicGenre = new ComicGenre();
+                comicGenre.setComic(comic);
+                comicGenre.setGenre(genreRepository.findById(genreId)
+                        .orElseThrow(() -> new RuntimeException("Genre not found")));
+                comicGenreRepository.save(comicGenre);
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error updating comic with genres: " + e.getMessage());
         }
     }
 

@@ -126,11 +126,7 @@ public class ComicController {
                                                    @RequestParam("genres") List<Long> genreIds) {
 
         try {
-            // Logging thông tin request
-            System.out.println("Title: " + title);
-            System.out.println("Description: " + description);
-            System.out.println("Status: " + status);
-            System.out.println("Genre IDs: " + genreIds);
+
 
             // Save image and get the path
             String coverImage = uploadService.storeImage(file);
@@ -162,6 +158,7 @@ public class ComicController {
                                              @RequestParam("description") String description,
                                              @RequestParam("status") String status,
                                              @RequestParam("genres") List<Long> genreIds) {
+
         try {
             // Save image and get the path
             String coverImage = uploadService.storeImage(file);
@@ -169,7 +166,7 @@ public class ComicController {
             // Get the existing comic information from the database
             Comic existingComic = comicService.getComicById(id);
             if (existingComic == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Trả về HTTP 404 Not Found nếu không tìm thấy bộ truyện
             }
 
             // Update comic information
@@ -178,22 +175,23 @@ public class ComicController {
             existingComic.setStatus(status);
             existingComic.setCoverImage(coverImage);
 
-            // Get the list of genres from the list of IDs
-            List<Genre> updatedGenres = genreService.getGenresByIds(genreIds);
+            // Update comic genres
+            comicService.updateComicWithGenres(id, genreIds);
 
-            // Create a new Set<Genre> from the list of genres
-            Set<Genre> genreSet = new HashSet<>(updatedGenres);
-
-            // Update the list of genres for the comic
-            existingComic.setGenres(genreSet);
+            // Save the updated comic to the database
             Comic updatedComic = comicService.updateComic(id, existingComic);
 
+            // Return the updated comic as a response
             return new ResponseEntity<>(updatedComic, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Trả về HTTP 404 Not Found nếu không tìm thấy bộ truyện
         }
     }
+
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteComic(@PathVariable Long id) {
