@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Comic Chapters</title>
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
     <!-- Add any necessary CSS stylesheets -->
     <style>
         /* Add your CSS styles here */
@@ -25,7 +26,12 @@
             margin-right: 8px;
             cursor: pointer;
         }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
     </style>
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
 </head>
 <body>
 <div id="root"></div>
@@ -37,6 +43,19 @@
 
 <!-- Your JavaScript file where you define the ComicChapters component -->
 <script type="text/babel" >
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
     function ComicChapters({ comicId, comicTitle }) {
         const [chapters, setChapters] = React.useState([]);
 
@@ -83,6 +102,9 @@
             window.location.href = `edit-chapter.html?comicId=${comicId}&chapterId=${chapterId}`;
         };
 
+        const handleViewChapterImages = (chapterId) => {
+            window.location.href = `chapter-images.html?chapterId=${chapterId}`;
+        };
 
         if (chapters.length === 0) {
             return <p>Loading chapters...</p>;
@@ -106,7 +128,9 @@
                     {chapters.map((chapter) => (
                         <tr key={chapter.id}>
                             <td>{chapter.chapterNumber}</td>
-                            <td>{chapter.title}</td>
+                            <td>
+                                <a href={`chapter-images.html?chapterId=${chapter.id}`} onClick={() => handleViewChapterImages(chapter.id)}>{chapter.title}</a>
+                            </td>
                             <td>{chapter.viewCount}</td>
                             <td>{chapter.updatedAt.toLocaleString()}</td>
                             <td>
@@ -127,7 +151,12 @@
     const comicTitle = urlParams.get('comicTitle');
 
     // Render the ComicChapters component with the comicId and comicTitle
-    ReactDOM.render(<ComicChapters comicId={comicId} comicTitle={comicTitle} />, document.getElementById('root'));
+    ReactDOM.render(  <div>
+            <Menu />
+            < ComicChapters comicId={comicId} comicTitle={comicTitle}/>
+
+        </div>
+          , document.getElementById('root'));
 
 </script>
 </body>

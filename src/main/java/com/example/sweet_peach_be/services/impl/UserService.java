@@ -4,27 +4,23 @@ package com.example.sweet_peach_be.services.impl;
 import com.example.sweet_peach_be.exceptions.ResourceNotFoundException;
 import com.example.sweet_peach_be.models.User;
 import com.example.sweet_peach_be.repositories.UserRepository;
-import com.example.sweet_peach_be.services.EmailService;
+import com.example.sweet_peach_be.services.IEmailService;
 import com.example.sweet_peach_be.services.IUserService;
-import com.example.sweet_peach_be.services.TokenService;
 import com.example.sweet_peach_be.services.JwtService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.mail.MessagingException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private EmailService emailService;
-    @Autowired
-    private TokenService tokenService;
+    private IEmailService emailService;
     @Autowired
     private JwtService jwtService;
 
@@ -32,10 +28,34 @@ public class UserService implements IUserService {
         return userRepository.findByIsDeletedFalse();
     }
 
+    @Override
+    public String getUserId(String email) throws ResourceNotFoundException {
+        // Thực hiện logic để lấy userId từ email
+        // Ví dụ:
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            return String.valueOf(user.getId()); // Chuyển đổi Long sang String
+        } else {
+            throw new ResourceNotFoundException("User not found with email: " + email);
+        }
+    }
+
+    @Override
+    public void verifyEmail(String token) {
+
+    }
+
+    @Override
     public Optional<User> getUserById(Long userId) {
         return userRepository.findByIdAndIsDeletedFalse(userId);
     }
-
+    @Override
+    public void changeAvatar(Long userId, String newAvatarPath) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        user.setAvatarPath(newAvatarPath);
+        userRepository.save(user);
+    }
     public User createUser(User user) {
         // Kiểm tra xem người dùng đã tồn tại hay chưa
         if (userRepository.existsByEmail(user.getEmail())) {
@@ -73,50 +93,42 @@ public class UserService implements IUserService {
         }
         return jwtService.generateToken(email);
     }
+    @Override
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && user.getPassword().equals(oldPassword)) {
+            user.setPassword(newPassword);
+            userRepository.save(user);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
-    @Value("${server.address}")
-    private String serverAddress;
 
     @Value("${server.port}")
     private String serverPort;
-
-    public void registerUser(User user) throws MessagingException, jakarta.mail.MessagingException {
-        // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
+    @Override
+    public String resetPassword(String email) {
+        String url="http://localhost:"+serverPort+"/reset-password?email=";
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return "Email chưa được đăng ký.";
+        } else {
+            // Gửi email với form reset password
+            String resetLink = url + email;
+            String mailContent = "Chào bạn,\n\nBạn có thể đặt lại mật khẩu của mình bằng cách truy cập đường dẫn sau: " + resetLink;
+            emailService.sendEmail(email, "Reset Password", mailContent);
+            return "Một email đã được gửi đến địa chỉ email của bạn. Vui lòng kiểm tra email để đặt lại mật khẩu.";
         }
-
-        // Tạo mã xác thực tạm thời
-        String token = UUID.randomUUID().toString();
-
-        // Lưu mã xác thực vào Redis với thời gian hết hạn là 3 phút
-        tokenService.storeToken(token, 3);
-
-        // Gửi email xác thực
-        sendVerificationEmail(user.getEmail(), token);
     }
-
-    private void sendVerificationEmail(String email, String token) throws MessagingException, jakarta.mail.MessagingException {
-        // Triển khai logic để gửi email xác thực
-        String verificationLink = "http://" + serverAddress + ":" + serverPort + "/verify?token=" + token;
-        String emailBody = "Please click on the link to verify your email: " + verificationLink;
-        emailService.sendEmail(email, "Email Verification", emailBody);
-    }
-
-    public void verifyEmail(String token) {
-        // Kiểm tra xem mã xác thực có hợp lệ không
-        if (!tokenService.isTokenValid(token)) {
-            throw new RuntimeException("Invalid verification token");
+    @Override
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setPassword(newPassword);
+            userRepository.save(user);
         }
-
-        // Xác thực thành công, lưu người dùng vào cơ sở dữ liệu
-        String email = tokenService.getEmailFromToken(token);
-        User user = new User();
-        user.setEmail(email);
-        userRepository.save(user);
-
-        // Xoá mã xác thực khỏi Redis sau khi đã sử dụng
-        tokenService.removeToken(token);
     }
 }

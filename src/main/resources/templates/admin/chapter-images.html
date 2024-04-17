@@ -3,38 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Chapter Images</title>
-    <!-- Add any necessary CSS stylesheets -->
-    <style>
-        .chapter-images {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .chapter-image-container {
-            width: 66.666666667%; /* 2/3 of the screen width */
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .chapter-image {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-        }
-        /* Button styles */
-        .chapter-navigation button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-    </style>
-</head>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/menu.css"></head>
 <body>
 <div id="root"></div>
 
@@ -43,321 +13,106 @@
 <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<!-- Your JavaScript file where you define the ChapterImages component -->
 <script type="text/babel">
-    function ChapterImages({ comicId, chapterId }) {
-        const [chapterImages, setChapterImages] = React.useState([]);
-        const [comicTitle, setComicTitle] = React.useState('');
-        const [chapters, setChapters] = React.useState([]);
-        const [isFirstChapter, setIsFirstChapter] = React.useState(false);
-        const [isLastChapter, setIsLastChapter] = React.useState(false);
-
-        React.useEffect(() => {
-            async function fetchChapterImages() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/chapterImages/chapter/${chapterId}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch chapter images');
-                    }
-                    const data = await response.json();
-                    setChapterImages(data);
-                } catch (error) {
-                    console.error('Error fetching chapter images:', error);
-                }
-            }
-
-            async function fetchComicTitle() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/chapters/${chapterId}/comicTitle`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch comic title');
-                    }
-                    const title = await response.text();
-                    setComicTitle(title);
-                } catch (error) {
-                    console.error('Error fetching comic title:', error);
-                }
-            }
-
-            async function fetchChapters() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/comics/${comicId}/chapters`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch chapters');
-                    }
-                    const data = await response.json();
-                    setChapters(data);
-                } catch (error) {
-                    console.error('Error fetching chapters:', error);
-                }
-            }
-
-            fetchChapterImages();
-            fetchComicTitle();
-            fetchChapters();
-        }, [comicId, chapterId]);
-
-        React.useEffect(() => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            setIsFirstChapter(currentChapterIndex === 0);
-            setIsLastChapter(currentChapterIndex === chapters.length - 1);
-        }, [chapterId, chapters]);
-
-        const goToNextChapter = () => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            if (currentChapterIndex !== -1 && currentChapterIndex < chapters.length - 1) {
-                const nextChapter = chapters[currentChapterIndex + 1];
-                window.location.href = `?comicId=${comicId}&chapterId=${nextChapter.id}`;
-            } else {
-                if (isLastChapter) {
-                    console.log("Đã hết chương!");
-                    alert("Đã hết chương!");
-                } else {
-                    console.log("No next chapter available for this comic");
-                }
-            }
-        };
-
-        const goToPreviousChapter = () => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            if (currentChapterIndex > 0) {
-                const previousChapter = chapters[currentChapterIndex - 1];
-                window.location.href = `?comicId=${comicId}&chapterId=${previousChapter.id}`;
-            } else {
-                if (isFirstChapter) {
-                    console.log("Đây là chương đầu tiên!");
-                    alert("Đây là chương đầu tiên!");
-                } else {
-                    console.log("No previous chapter available for this comic");
-                }
-            }
-        };
-
-        if (chapterImages.length === 0 || !comicTitle || chapters.length === 0) {
-            return <p>Loading...</p>;
-        }
-
-        const currentChapter = chapters.find(
-            (chapter) => chapter.id === parseInt(chapterId, 10)
-        );
-
+    function Menu() {
         return (
-            <div className="chapter-images">
-                <div className="chapter-image-container">
-                    <h2>{comicTitle} - {currentChapter.title}</h2>
-                    <div className="chapter-navigation">
-                        {!isFirstChapter && (
-                            <button onClick={goToPreviousChapter}>Previous Chapter</button>
-                        )}
-                        {!isLastChapter && (
-                            <button onClick={goToNextChapter}>Next Chapter</button>
-                        )}
-                    </div>
-                    {chapterImages.map((image, index) => (
-                        <img
-                            key={image?.id || index}
-                            src={`/uploads/${image.imagePath}`}
-                            alt={`Chapter Image ${image?.id || index}`}
-                            className="chapter-image"
-                        />
-                    ))}
-                </div>
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
             </div>
         );
     }
-    // Get the comicId and chapterId from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const comicId = urlParams.get('comicId');
-    const chapterId = urlParams.get('chapterId');
-
-    // Render the ChapterImages component with the comicId and chapterId
-    ReactDOM.render(<ChapterImages comicId={comicId} chapterId={chapterId} />, document.getElementById('root'));
-
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Chapter Images</title>
-    <!-- Add any necessary CSS stylesheets -->
-    <style>
-        .chapter-images {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .chapter-image-container {
-            width: 66.666666667%; /* 2/3 of the screen width */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .chapter-navigation {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .chapter-navigation button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .chapter-image {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-<div id="root"></div>
-
-<!-- React library -->
-<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<!-- Your JavaScript file where you define the ChapterImages component -->
-<script type="text/babel">
-    function ChapterImages({ comicId, chapterId }) {
+    function ChapterImages({ chapterId }) {
         const [chapterImages, setChapterImages] = React.useState([]);
-        const [comicTitle, setComicTitle] = React.useState('');
-        const [chapters, setChapters] = React.useState([]);
-        const [isFirstChapter, setIsFirstChapter] = React.useState(false);
-        const [isLastChapter, setIsLastChapter] = React.useState(false);
+
+        // Function to handle delete image
+        const handleDeleteImage = (imageId) => {
+            if (window.confirm('Are you sure you want to delete this image?')) {
+                // Make DELETE request to delete the image
+                fetch(`http://localhost:8080/api/chapterImages/delete/${imageId}`, {
+                    method: 'DELETE',
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete image');
+                        }
+                        // Remove the deleted image from the state
+                        setChapterImages((prevImages) => prevImages.filter((image) => image.id !== imageId));
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting image:', error);
+                    });
+            }
+        };
+
+        const handleCreateImage = () => {
+            window.location.href = `create-chapterImage.html?chapterId=${chapterId}`;
+        };
 
         React.useEffect(() => {
-            async function fetchChapterImages() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/chapterImages/chapter/${chapterId}`);
+            fetch(`http://localhost:8080/api/chapterImages/chapter/${chapterId}`)
+                .then((response) => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch chapter images');
                     }
-                    const data = await response.json();
+                    return response.json();
+                })
+                .then((data) => {
+                    if (!data || !Array.isArray(data)) {
+                        throw new Error('Invalid data format for chapter images');
+                    }
+                    console.log("Received Chapter Images:", data);
                     setChapterImages(data);
-                } catch (error) {
+                })
+                .catch((error) => {
                     console.error('Error fetching chapter images:', error);
-                }
-            }
+                });
+        }, [chapterId, setChapterImages]);
 
-            async function fetchComicTitle() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/chapters/${chapterId}/comicTitle`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch comic title');
-                    }
-                    const title = await response.text();
-                    setComicTitle(title);
-                } catch (error) {
-                    console.error('Error fetching comic title:', error);
-                }
-            }
-
-            async function fetchChapters() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/comics/${comicId}/chapters`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch chapters');
-                    }
-                    const data = await response.json();
-                    setChapters(data);
-                } catch (error) {
-                    console.error('Error fetching chapters:', error);
-                }
-            }
-
-            fetchChapterImages();
-            fetchComicTitle();
-            fetchChapters();
-        }, [comicId, chapterId]);
-
-        React.useEffect(() => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            setIsFirstChapter(currentChapterIndex === 0);
-            setIsLastChapter(currentChapterIndex === chapters.length - 1);
-        }, [chapterId, chapters]);
-
-        const goToNextChapter = () => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            if (currentChapterIndex !== -1 && currentChapterIndex < chapters.length - 1) {
-                const nextChapter = chapters[currentChapterIndex + 1];
-                window.location.href = `?comicId=${comicId}&chapterId=${nextChapter.id}`;
-            } else {
-                if (isLastChapter) {
-                    console.log("Đã hết chương!");
-                    alert("Đã hết chương!");
-                } else {
-                    console.log("No next chapter available for this comic");
-                }
-            }
-        };
-
-        const goToPreviousChapter = () => {
-            const currentChapterIndex = chapters.findIndex(chapter => chapter.id === parseInt(chapterId, 10));
-            if (currentChapterIndex > 0) {
-                const previousChapter = chapters[currentChapterIndex - 1];
-                window.location.href = `?comicId=${comicId}&chapterId=${previousChapter.id}`;
-            } else {
-                if (isFirstChapter) {
-                    console.log("Đây là chương đầu tiên!");
-                    alert("Đây là chương đầu tiên!");
-                } else {
-                    console.log("No previous chapter available for this comic");
-                }
-            }
-        };
-
-        if (chapterImages.length === 0 || !comicTitle || chapters.length === 0) {
-            return <p>Loading...</p>;
-        }
-
-        const currentChapter = chapters.find(
-            (chapter) => chapter.id === parseInt(chapterId, 10)
-        );
+        console.log("Chapter Images State:", chapterImages);
 
         return (
-            <div className="chapter-images">
-                <div className="chapter-image-container">
-                    <h2>{comicTitle} - {currentChapter.title}</h2>
-                    <div className="chapter-navigation">
-                        {!isFirstChapter && (
-                            <button onClick={goToPreviousChapter}>Previous Chapter</button>
-                        )}
-                        {!isLastChapter && (
-                            <button onClick={goToNextChapter}>Next Chapter</button>
-                        )}
-                    </div>
-                    {chapterImages.map((image, index) => (
-                        <img
-                            key={image?.id || index}
-                            src={`/uploads/${image.imagePath}`}
-                            alt={`Chapter Image ${image?.id || index}`}
-                            className="chapter-image"
-                        />
+            <div>
+                <h2>Chapter Images</h2>
+                <button onClick={handleCreateImage} style={{ marginRight: '10px' }}>Create Image</button>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {chapterImages.map((image) => (
+                        <tr key={image.id}>
+                            <td>
+                                <img src={`/uploads/${image.imagePath}`} alt={`Chapter ${image.chapterId} Image`} />
+                            </td>
+                            <td>
+                                <button onClick={() => handleDeleteImage(image.id)}>Delete</button>
+                            </td>
+                        </tr>
                     ))}
-                </div>
+                    </tbody>
+                </table>
             </div>
         );
     }
-    // Get the comicId and chapterId from the URL
+
     const urlParams = new URLSearchParams(window.location.search);
-    const comicId = urlParams.get('comicId');
     const chapterId = urlParams.get('chapterId');
 
-    // Render the ChapterImages component with the comicId and chapterId
-    ReactDOM.render(<ChapterImages comicId={comicId} chapterId={chapterId} />, document.getElementById('root'));
+   ReactDOM.render(  <div>
+           <Menu />
+           <ChapterImages chapterId={chapterId} />
+       </div>
+
+       , document.getElementById('root'));
 
 </script>
 </body>

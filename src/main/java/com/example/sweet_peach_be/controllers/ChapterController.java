@@ -22,6 +22,7 @@ public class ChapterController {
     private final IChapterService chapterService;
     @Autowired
     private UploadService uploadService;
+
     @Autowired
     public ChapterController(IChapterService chapterService) {
         this.chapterService = chapterService;
@@ -38,6 +39,7 @@ public class ChapterController {
         List<Chapter> chapters = chapterService.getChaptersByComicId(comicId);
         return new ResponseEntity<>(chapters, HttpStatus.OK);
     }
+
     // Lấy thông tin Chapter theo comicId và chapterId
     @GetMapping("/{comicId}/chapters/{chapterId}")
     public ResponseEntity<Chapter> getChapterByComicAndId(@PathVariable Long comicId, @PathVariable Long chapterId) {
@@ -45,6 +47,7 @@ public class ChapterController {
         return chapter.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
     @GetMapping("/{chapterId}/comicTitle")
     public ResponseEntity<String> getComicTitleByChapterId(@PathVariable Long chapterId) {
         try {
@@ -62,15 +65,15 @@ public class ChapterController {
     @PostMapping("/create/{comicId}")
     public ResponseEntity<Chapter> createChapterForComic(@PathVariable Long comicId,
                                                          @RequestParam("chapterNumber") int chapterNumber,
-                                                         @RequestParam("title") String title,
-                                                         @RequestParam("chapterImages") List<MultipartFile> chapterImages
+                                                         @RequestParam("title") String title
+
     ) {
         try {
             Chapter chapter = new Chapter();
             chapter.setComicId(comicId);
             chapter.setChapterNumber(chapterNumber);
             chapter.setTitle(title);
-            Chapter createdChapter = chapterService.saveChapterWithImages(chapter, chapterImages);
+            Chapter createdChapter = chapterService.createChapter(comicId, chapter);
             return new ResponseEntity<>(createdChapter, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -80,8 +83,8 @@ public class ChapterController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Chapter> updateChapter(@PathVariable Long id,
                                                  @RequestParam("chapterNumber") int chapterNumber,
-                                                 @RequestParam("title") String title,
-                                                 @RequestParam("chapterImages") List<MultipartFile> chapterImages
+                                                 @RequestParam("title") String title
+
     ) {
         try {
             if (id == null || id <= 0) {
@@ -97,35 +100,28 @@ public class ChapterController {
                 chapter.setChapterNumber(chapterNumber);
                 chapter.setTitle(title);
 
-                // Xử lý danh sách chapterImages
-                List<ChapterImage> updatedChapterImages = new ArrayList<>();
-                for (MultipartFile imageFile : chapterImages) {
-                    String imagePath = uploadService.storeImage( imageFile);
-                    ChapterImage chapterImage = new ChapterImage();
-                    chapterImage.setChapter(chapter);
-                    chapterImage.setImagePath(imagePath);
-                    updatedChapterImages.add(chapterImage);
-                }
-                chapter.setChapterImages(updatedChapterImages);
 
-                Chapter updated = chapterService.updateChapter(id, chapter)
-            return new ResponseEntity<>(updated, HttpStatus.OK);
+                Chapter updated = chapterService.updateChapter(id, chapter);
+                return new ResponseEntity<>(updated, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteChapter(@PathVariable("id") Long id) {
-        chapterService.deleteChapter(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @GetMapping("/view/{id}")
-    public ResponseEntity<Chapter> incrementViewCount(@PathVariable("id") Long id) {
-        Chapter chapter = chapterService.incrementViewCount(id);
-        if (chapter != null) {
-            return new ResponseEntity<>(chapter, HttpStatus.OK);
+        @DeleteMapping("/delete/{id}")
+        public ResponseEntity<?> deleteChapter (@PathVariable("id") Long id){
+            chapterService.deleteChapter(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        @GetMapping("/view/{id}")
+        public ResponseEntity<Chapter> incrementViewCount (@PathVariable("id") Long id){
+            Chapter chapter = chapterService.incrementViewCount(id);
+            if (chapter != null) {
+                return new ResponseEntity<>(chapter, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
-}
+

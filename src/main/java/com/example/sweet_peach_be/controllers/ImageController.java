@@ -16,9 +16,6 @@ import java.nio.file.Paths;
 @Controller
 public class ImageController {
 
-    @Value("${server.address}")
-    private String serverAddress;
-
     @Value("${server.port}")
     private String serverPort;
 
@@ -35,6 +32,8 @@ public class ImageController {
     @GetMapping("/serverUrl")
     @ResponseBody
     public String getServerUrl() {
+        // @Value("${server.address}")
+        String serverAddress = "localhost";
         return "http://" + serverAddress + ":" + serverPort + "/";
     }
 }

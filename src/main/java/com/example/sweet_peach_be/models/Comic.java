@@ -25,6 +25,7 @@ public class Comic {
     private int viewCount;
     private int followCount;
     private double rating;
+    @Column(name="status")
     private String status;
 
     private boolean isDeleted;

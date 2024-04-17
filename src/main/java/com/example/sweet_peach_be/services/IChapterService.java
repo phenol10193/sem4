@@ -13,11 +13,7 @@ public interface IChapterService {
     Chapter createChapter(Long comicId, Chapter chapter);
     Chapter updateChapter(Long id, Chapter updatedChapter);
 
-    @Transactional
-    Chapter saveChapterWithImages(Chapter chapter, List<MultipartFile> chapterImages) throws IOException;
 
-    @Transactional
-    Chapter updateChapterImages(Long id, List<MultipartFile> chapterImages) throws IOException;
 
     void deleteChapter(Long id);
     List<Chapter>getChaptersByComicId(Long comicId);

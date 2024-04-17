@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>User Management</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
 </head>
 <body>
 <div id="root"></div>
@@ -14,6 +15,19 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel">
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
     class UserManagement extends React.Component {
         constructor(props) {
             super(props);
@@ -106,7 +120,13 @@
         }
     }
 
-    ReactDOM.render(<UserManagement />, document.getElementById('root'));
+    ReactDOM.render(
+        <div>
+        <Menu />
+        <UserManagement />
+    </div>
+
+        , document.getElementById('root'));
 </script>
 </body>
 </html>

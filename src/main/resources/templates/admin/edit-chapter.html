@@ -37,6 +37,7 @@
             background-color: #0056b3;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
 </head>
 <body>
 <div id="root"></div>
@@ -48,6 +49,19 @@
 
 <!-- Your JavaScript file where you define the EditChapter component -->
 <script type="text/babel">
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
     const { useState, useEffect } = React;
 
     // Function to get URL parameters
@@ -140,7 +154,12 @@
         );
     }
 
-    ReactDOM.render(<EditChapter />, document.getElementById('root'));
+    ReactDOM.render(<div>
+        <Menu />
+        <EditChapter />
+    </div>
+
+        , document.getElementById('root'));
 </script>
 
 </body>

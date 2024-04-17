@@ -1,20 +1,19 @@
 
 package com.example.sweet_peach_be.controllers;
 
+import com.example.sweet_peach_be.dtos.CommentInfo;
 import com.example.sweet_peach_be.models.Comment;
-
-import java.util.List;
 
 import com.example.sweet_peach_be.services.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping({"/api/comments"})
-@CrossOrigin
+@RequestMapping("/api/comments")
 public class CommentController {
+
     private final ICommentService commentService;
 
     @Autowired
@@ -22,27 +21,19 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping({"/users/{Id}"})
-    public ResponseEntity<List<Comment>> getCommentsById(@PathVariable Long Id) {
-        Comment comment = commentService.getCommentsById(Id);
-        return new ResponseEntity(comment, comment != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+    @PostMapping("/add")
+    public Comment addComment(@RequestBody Comment comment) {
+        // Thêm mới comment
+        return commentService.addComment(comment);
     }
 
-    @PostMapping({"/create"})
-    public ResponseEntity<Comment> addComment(@RequestBody Comment comment) {
-        Comment savedComment = this.commentService.saveComment( comment);
-        return new ResponseEntity(savedComment, HttpStatus.CREATED);
+    @GetMapping("/all")
+    public List<CommentInfo> getAllComments() {
+        // Lấy ra tất cả thông tin các comment
+        return commentService.getAllCommentInfo();
     }
-
-    @PutMapping({"/update/{commentId}"})
-    public ResponseEntity<Comment> updateComment(@PathVariable Long commentId, @RequestBody Comment commentDetails) {
-        Comment updatedComment = this.commentService.updateComment(commentId, commentDetails);
-        return new ResponseEntity(updatedComment, HttpStatus.OK);
-    }
-
-    @DeleteMapping({"/{commentId}"})
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
-        this.commentService.deleteComment(commentId);
-        return new ResponseEntity("Comment deleted successfully", HttpStatus.OK);
+    @GetMapping("/chapter/{chapterId}")
+    public List<CommentInfo> getCommentInfoByChapterId(@PathVariable Long chapterId) {
+        return commentService.getAllCommentInfoByChapterId(chapterId);
     }
 }

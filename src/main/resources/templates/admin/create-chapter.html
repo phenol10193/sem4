@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Create Chapter Page</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
 </head>
 <body>
 <div id="root"></div>
@@ -15,6 +16,19 @@
 
 <!-- Your JavaScript file where you define the CreateChapter component -->
 <script type="text/babel">
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
     // Import React and useState
     const { useState } = React;
 
@@ -93,7 +107,12 @@
     const comicId = urlParams.get('comicId');
 
     // Render the CreateChapter component with the comicId
-    ReactDOM.render(<CreateChapter comicId={comicId} />, document.getElementById('root'));
+    ReactDOM.render(<div>
+            <Menu />
+        <CreateChapter comicId={comicId} />
+        </div>
+
+        , document.getElementById('root'));
 </script>
 
 </body>

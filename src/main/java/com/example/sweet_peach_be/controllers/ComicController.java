@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -51,12 +52,6 @@ public class ComicController {
         return new ResponseEntity<>(newestComics, HttpStatus.OK);
     }
 
-    @GetMapping("/hot")
-    public ResponseEntity<List<Comic>> getHotComics(@RequestParam(name = "period") String period,
-                                                    @RequestParam(name = "limit", defaultValue = "6") int limit) {
-        List<Comic> hotComics = comicService.getHotComics(period, limit);
-        return new ResponseEntity<>(hotComics, HttpStatus.OK);
-    }
 
     @PostMapping("/{comicId}/genres/{genreId}")
     public ResponseEntity<String> addGenreToComic(@PathVariable Long comicId, @PathVariable Long genreId) {
@@ -200,17 +195,35 @@ public class ComicController {
     }
 
     @GetMapping("/newest1")
-    public List<ComicListItem> getNewestComicsv1(@RequestParam int limit) {
-        return comicService.getNewestComicItems(limit);
+    public List<ComicListItem> getNewestComicsv1(@RequestParam int limitnew) {
+        System.out.println("ok:"+limitnew);
+        return comicService.getNewestComicItems(limitnew);
     }
 
     @GetMapping("/hot1")
-    public List<ComicListItem> getHotComicsv1(@RequestParam String period, @RequestParam int limit) {
-        return comicService.getHotComicItems(period, limit);
+    public List<ComicListItem> getHotComicsv1(@RequestParam String period, @RequestParam int limithot) {
+        return comicService.getHotComicItems(period, limithot);
     }
 
     @GetMapping("/genre1/{genreId}")
     public List<ComicListItem> getComicsByGenreIdv1(@PathVariable Long genreId) {
         return comicService.getComicItemsByGenreId(genreId);
     }
+
+    @GetMapping("/history/{userId}")
+    public List<ComicListItem> getComicHistory(@PathVariable Long userId) {
+        return comicService.getComicHistory(userId);
+    }
+
+    @GetMapping("/{userId}/followed-comics")
+    public List<ComicListItem> getFollowedComicsByUserIdItem(@PathVariable Long userId) {
+        return comicService.getFollowedComicsByUserIdItem(userId);
+    }
+    @PostMapping("/localstorage")
+    public ResponseEntity<List<ComicListItem>> getLocalStorageItems(@RequestBody List<Map<String, Long>> comicChapterList) {
+        List<ComicListItem> localStorageItems = comicService.getLocalStorageItem(comicChapterList);
+        return new ResponseEntity<>(localStorageItems, HttpStatus.OK);
+    }
+
 }
+

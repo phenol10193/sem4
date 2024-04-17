@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 public class ChapterService implements IChapterService {
+
     @Autowired
     private  ChapterRepository chapterRepository;
     @Autowired
@@ -30,11 +31,13 @@ public class ChapterService implements IChapterService {
     @Autowired
     private UploadService uploadService;
     private  ComicService comicService;
+    private final ViewCountService viewCountService;
 
     @Autowired
-    public ChapterService(ChapterRepository chapterRepository, ComicRepository comicRepository) {
+    public ChapterService(ChapterRepository chapterRepository, ComicRepository comicRepository,ViewCountService viewCountService) {
         this.chapterRepository = chapterRepository;
         this.comicRepository = comicRepository;
+        this.viewCountService= viewCountService;
     }
 
     public List<Chapter> getAllChapters() {
@@ -67,52 +70,7 @@ public class ChapterService implements IChapterService {
         }
         return null;
     }
-    @Transactional
-    @Override
-    public Chapter saveChapterWithImages(Chapter chapter, List<MultipartFile> chapterImages) throws IOException {
-        // Lưu danh sách ChapterImage
-        for (MultipartFile image : chapterImages) {
-            String imagePath = uploadService.storeImage(image);
-            ChapterImage chapterImage = new ChapterImage();
-            chapterImage.setChapter(chapter);
-            chapterImage.setImagePath(imagePath);
-            chapter.getChapterImages().add(chapterImage);
-        }
 
-        // Lưu Chapter vào cơ sở dữ liệu
-        return chapterRepository.save(chapter);
-    }
-    @Transactional
-    @Override
-    public Chapter updateChapterImages(Long id, List<MultipartFile> chapterImages) throws IOException {
-        Optional<Chapter> optionalChapter = chapterRepository.findById(id);
-        if (optionalChapter.isPresent()) {
-            Chapter chapter = optionalChapter.get();
-
-            // Lấy danh sách ChapterImages hiện tại của Chapter
-            List<ChapterImage> existingChapterImages = chapter.getChapterImages();
-
-            // Khởi tạo danh sách mới để lưu các ChapterImage mới
-
-            // Lưu các ChapterImage hiện tại vào danh sách mới
-            List<ChapterImage> newChapterImages = new ArrayList<>(existingChapterImages);
-
-            // Lưu các ChapterImage mới từ các file ảnh được upload
-            for (MultipartFile imageFile : chapterImages) {
-                String imagePath = uploadService.storeImage(imageFile);
-                ChapterImage newChapterImage = new ChapterImage();
-                newChapterImage.setImagePath(imagePath);
-                newChapterImage.setChapter(chapter);
-                newChapterImages.add(newChapterImage);
-            }
-
-            // Cập nhật danh sách ChapterImages của Chapter và lưu lại vào cơ sở dữ liệu
-            chapter.setChapterImages(newChapterImages);
-            return chapterRepository.save(chapter);
-        } else {
-            throw new IllegalArgumentException("Chapter not found with id: " + id);
-        }
-    }
     public void deleteChapter(Long id) {
         Chapter chapter = chapterRepository.findById(id).orElse(null);
         if (chapter != null) {
@@ -145,6 +103,8 @@ public class ChapterService implements IChapterService {
             if (comic != null) {
                 comic.setViewCount(comic.getViewCount() + 1);
                 comicRepository.save(comic);
+
+                viewCountService.updateComicViewCount(comic);
             }
 
             return chapter;

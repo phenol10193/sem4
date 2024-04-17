@@ -24,8 +24,8 @@ public class GenreController {
         return new ResponseEntity<>(genres, HttpStatus.OK);
     }
     @GetMapping("/top6")
-    public ResponseEntity<List<TopGenreDto>> getTop6GenresByViewCount( @RequestParam(name = "limit", defaultValue = "6") int limit) {
-        List<TopGenreDto> topGenres = genreService.getTop6GenresByViewCount( limit);
+    public ResponseEntity<List<TopGenreDto>> getTop6GenresByViewCount() {
+        List<TopGenreDto> topGenres = genreService.getTop6GenresByViewCount();
         return new ResponseEntity<>(topGenres, HttpStatus.OK);
     }
     @GetMapping("/{id}")

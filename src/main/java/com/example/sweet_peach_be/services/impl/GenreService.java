@@ -66,8 +66,8 @@ public class GenreService implements IGenreService {
             genreRepository.save(genre);
         }
     }
-    public List<TopGenreDto> getTop6GenresByViewCount(int limit) {
-        return genreRepository.findTop6GenresByViewCount(limit);
+    public List<TopGenreDto> getTop6GenresByViewCount() {
+        return genreRepository.findTop6GenresByViewCount();
     }
 }
 

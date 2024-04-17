@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user/reading-history")
@@ -21,6 +22,12 @@ public class UserReadingHistoryController {
     @Autowired
     private IComicService comicService;
 
+
+    @GetMapping("/{userId}/last-chapter/{comicId}")
+    public Long getLatestReadChapterForComic(@PathVariable Long userId, @PathVariable Long comicId) {
+        Map<Long, Long> latestReadChapters = historyService.getLatestReadChaptersByUserIdAndComicId(userId);
+        return latestReadChapters.getOrDefault(comicId,null );
+    }
     @GetMapping("/{userId}/comics")
     public ResponseEntity<List<ComicListItem>> getReadComicHistory(@PathVariable Long userId) {
         List<ComicListItem> readComics = comicService.getComicHistory(userId);

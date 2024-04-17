@@ -18,20 +18,24 @@ spring:
       max-request-size: 5MB
       enabled: true
       file-size-threshold: 2KB
+
   mail:
-    host: info@trial-z3m5jgrq89mldpyo.mlsender.net
-    port: 587
-    username: hieu.nv.2033@aptechlearning.edu.vn
-    password: "@hieu2104"
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+      host: live.smtp.mailtrap.io
+      port: 587
+      username: api
+      password: de8d52b743ba031d75edc6ef723a48e2
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
 server:
+
   address: localhost
   port: 8080
+
 jwt:
   secret: mySecretKey
   expiration: 2592000000

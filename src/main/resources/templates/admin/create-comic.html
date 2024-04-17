@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Tạo truyện tranh</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
 </head>
 <body>
 <div id="root"></div>
@@ -13,9 +14,23 @@
 <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.14.5/babel.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/babel">
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
     const CreateComic = () => {
         const [genres, setGenres] = React.useState([]);
         const [selectedGenres, setSelectedGenres] = React.useState([]);
+        const [coverPreview, setCoverPreview] = React.useState(null);
 
         React.useEffect(() => {
             const loadGenres = async () => {
@@ -49,6 +64,17 @@
             }
         };
 
+        const handleImageChange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setCoverPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
         const handleSubmit = async (event) => {
             event.preventDefault();
 
@@ -79,6 +105,7 @@
                 }
 
                 alert('Comic created successfully!');
+                window.location.href = `comics.html`;
 
                 // Chuyển hướng sau khi tạo truyện thành công
                 window.location.href = 'comics.html';
@@ -104,13 +131,22 @@
                             <label htmlFor="title">Title:</label>
                             <input type="text" id="title" name="title" required/><br/><br/>
                             <label htmlFor="file">Cover Image:</label>
-                            <input type="file" id="file" name="file" accept="image/*" required/><br/><br/>
-                            <img
-                                id="coverPreview"
-                                src="#"
-                                alt="Cover Preview"
-                                style={{maxWidth: '200px', display: 'none'}}
-                            />
+                            <input
+                                type="file"
+                                id="file"
+                                name="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                required
+                            /><br/><br/>
+                            {coverPreview && (
+                                <img
+                                    id="coverPreview"
+                                    src={coverPreview}
+                                    alt="Cover Preview"
+                                    style={{maxWidth: '200px'}}
+                                />
+                            )}
                             <label htmlFor="description">Description:</label><br/>
                             <textarea id="description" name="description" required></textarea><br/><br/>
                             <label htmlFor="status">Status:</label>
@@ -137,7 +173,12 @@
         );
     };
 
-    ReactDOM.render(<CreateComic />, document.getElementById("root"));
+    ReactDOM.render(<div>
+        <Menu />
+        <CreateComic />
+    </div>
+
+        , document.getElementById("root"));
 
 </script>
 </body>

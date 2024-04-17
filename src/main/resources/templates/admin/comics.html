@@ -10,14 +10,29 @@
     <!-- Babel for JSX and ES6 support -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" data-presets="env,react"></script>
     <title>Comics</title>
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 <body>
 <!-- Container for React app -->
 <div id="root" class="container"></div>
 
-<!-- Your React component -->
+<!-- Your React components -->
 <script type="text/babel">
+    function Menu() {
+        return (
+            <div className="menu">
+                <ul>
+                    <li><a href="users.html">User</a></li>
+                    <li><a href="comics.html">Comics</a></li>
+                    <li><a href="genre.html">Genre</a></li>
+
+                </ul>
+                <a href="#" className="logout-btn">Logout</a>
+            </div>
+        );
+    }
+
     function GenreList({ genres }) {
         if (!genres || genres.length === 0) {
             return <p>No genres available</p>;
@@ -31,6 +46,7 @@
             </ul>
         );
     }
+
     function Comics() {
         const [comics, setComics] = React.useState([]);
         const [genresMap, setGenresMap] = React.useState({});
@@ -106,7 +122,24 @@
         };
         // Delete comic handler
         const deleteComic = (comicId) => {
-            // Your delete comic code here
+            const confirmDelete = window.confirm("Are you sure you want to delete this comic?");
+            if (confirmDelete) {
+                fetch(`http://localhost:8080/api/comics/delete/${comicId}`, {
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete comic');
+                        }
+                        // Xóa comic khỏi danh sách trên UI
+                        setComics(prevComics => prevComics.filter(comic => comic.id !== comicId));
+                        alert('Comic deleted successfully');
+                    })
+                    .catch(error => {
+                        console.error('Error deleting comic:', error);
+                        alert('Failed to delete comic. Please try again later.');
+                    });
+            }
         };
 
         // Render edit button
@@ -164,7 +197,13 @@
     }
 
     // Render the Comics component
-    ReactDOM.render(<Comics />, document.getElementById('root'));
+    ReactDOM.render(
+        <div>
+            <Menu />
+            <Comics />
+        </div>,
+        document.getElementById('root')
+    );
 </script>
 </body>
 </html>
