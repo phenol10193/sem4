@@ -281,18 +281,40 @@ public class ComicService implements IComicService {
     @Override
     public List<ComicListItem> getLocalStorageItem(List<Map<String, Long>> comicChapterList) {
         List<ComicListItem> localStorageItems = new ArrayList<>();
+        Map<Long, Long> latestChapterMap = new HashMap<>(); // Map to store latest chapterId for each comicId
 
         for (Map<String, Long> comicChapter : comicChapterList) {
             Long comicId = comicChapter.get("comicId");
             Long chapterId = comicChapter.get("chapterId");
 
-            Comic comic = comicRepository.findById(comicId).orElse(null);
-            Chapter chapter = chapterRepository.findById(chapterId).orElse(null);
+            // Check if comicId already exists in the map and if the chapterId is greater
+            if (latestChapterMap.containsKey(comicId)) {
+                Long latestChapterId = latestChapterMap.get(comicId);
+                Chapter latestChapter = chapterRepository.findById(latestChapterId).orElse(null);
+                Chapter currentChapter = chapterRepository.findById(chapterId).orElse(null);
 
-            if (comic != null && chapter != null) {
+                // Update the latestChapterMap if the current chapter is newer
+                if (latestChapter != null && currentChapter != null &&
+                        currentChapter.getUpdatedAt().isAfter(latestChapter.getUpdatedAt())) {
+                    latestChapterMap.put(comicId, chapterId);
+                }
+            } else {
+                latestChapterMap.put(comicId, chapterId);
+            }
+        }
+
+        // Retrieve the ComicListItem for each comicId and latestChapterId pair
+        for (Map.Entry<Long, Long> entry : latestChapterMap.entrySet()) {
+            Long comicId = entry.getKey();
+            Long latestChapterId = entry.getValue();
+
+            Comic comic = comicRepository.findById(comicId).orElse(null);
+            Chapter latestChapter = chapterRepository.findById(latestChapterId).orElse(null);
+
+            if (comic != null && latestChapter != null) {
                 ComicListItem item = mapComicToItem(comic);
-                item.setLatestChapterTitle(chapter.getTitle());
-                item.setTimeSinceLastUpdate(calculateTimeSinceLastUpdate(chapter.getUpdatedAt()));
+                item.setLatestChapterTitle(latestChapter.getTitle());
+                item.setTimeSinceLastUpdate(calculateTimeSinceLastUpdate(latestChapter.getUpdatedAt()));
                 localStorageItems.add(item);
             }
         }
